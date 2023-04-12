@@ -1,0 +1,19 @@
+{
+    "name": "alex/myfiles_service",
+    "description": "Сервис для сохранения документов",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/app"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alex Strigo",
+            "email": "huligangster1488@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.5"
+    }
+}

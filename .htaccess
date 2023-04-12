@@ -1,0 +1,16 @@
+RewriteEngine On
+RewriteBase /
+Options -Indexes
+
+# тут мы все запросы сначала отправляем в папку public
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+# и по идее мы должны добавить public перед все тем что написано в адресной строке и пытаемся отдать
+RewriteRule (.*) public/$1 [QSA,L]
+
+
+# если ни файла ни папки нет, значит мы переводим все на файл index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /index.php [QSA,L]
+
+# при все этой красото пользователь ничего не должен видеть, у него пути менять в адресной строке не должны
