@@ -8,6 +8,8 @@ class Request
     private array $arguments;
     private array $path;
 
+    public array $props = [];
+
     public function __construct(array $params, array $args)
     {
         $this->parameters = $params;

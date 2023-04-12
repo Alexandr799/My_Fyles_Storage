@@ -21,9 +21,34 @@ class User  extends Controller
 
     public function update(Request $req)
     {
-        $id = $req->getParam('id');
-        echo 1;
-        // $users = DataBase::create()->quaryWithVars("DELETE FROM users where id = :id", ['id' => $id]);
+        $id = intval($req->getParam('id'));
+        if (empty($id)) return Response::error(['error'=>'не задан id'], 401);
+        
+        $params = [
+            'role'=> $req->getParam('role'),
+            'login' => $req->getParam('login'),
+            'password' => $req->getParam('password'),
+        ];
+        $cleanParams = [];
+        $quary = '';
+        foreach ($params as $key=>$val){
+            if (!empty($val)){
+                $cleanParams[$key] = $val;
+                $quary .= " $key = :$key,";
+            }
+        }
+        $quary = substr($quary, 0, strlen($quary)-1);
+        $cleanParams['id'] = $id;
+
+
+        $dbres = DataBase::create()->quaryWithVars("UPDATE users SET $quary WHERE id=:id", $cleanParams);
+
+        if (!$dbres['success']) {
+            var_dump($dbres['message']);
+            return  Response::error(['error' => 'Не удалось обновить пользователя'], 500);
+        }
+
+        Response::json(['update' => true]);
     }
 
     public function delete(Request $req)
@@ -31,7 +56,7 @@ class User  extends Controller
         $id = $req->getArg('id');
         $users = DataBase::create()->quaryWithVars("DELETE FROM users where id = :id", ['id' => $id]);
 
-        if (!$users['success']) Response::error(['error' => 'Не удалось удалить пользователя'], 500);
+        if (!$users['success']) return Response::error(['error' => 'Не удалось удалить пользователя'], 500);
 
         Response::json(['delete' => true]);
     }
@@ -50,7 +75,7 @@ class User  extends Controller
         );
 
         $updatedUser = DataBase::create()->quaryWithVars(
-            'INSERT INTO users (login, password,role) VALUES (:login, :password, :role)',
+            'INSERT INTO users (login, pass,role) VALUES (:login, :pass, :role)',
             [
                 'login' => $login,
                 'password' => $password,
@@ -75,12 +100,12 @@ class User  extends Controller
 
     public function login(Request $req)
     {
-        $pass = $req->getParam('password');
+        $password = $req->getParam('password');
         $log = $req->getParam('login');
         $user = DataBase::create()->quaryWithVars(
             "select * from users where login = :login and password = :password",
             [
-                'password' => $pass,
+                'password' => $password,
                 'login' => $log,
             ]
         );
