@@ -19,6 +19,10 @@ class User  extends Controller
         }
     }
 
+    public function file(Request $req) {
+        echo file_get_contents('/home/alex/my-project/portfolio/myfiles_service/public/index.html');
+    }
+
     public function update(Request $req)
     {
         $id = intval($req->getParam('id'));
