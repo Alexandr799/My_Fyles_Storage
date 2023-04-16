@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Entities;
 
 use Exception;
 use PDO;

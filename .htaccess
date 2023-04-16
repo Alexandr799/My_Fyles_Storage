@@ -1,17 +1,18 @@
 RewriteEngine On
 RewriteBase /
-Options -Indexes
+# Options -Indexes
+
 
 # тут мы все запросы сначала отправляем в папку public
-RewriteCond %{REQUEST_FILENAME} /static/.*
-RewriteRule /static/(.*) public/static/$1 [QSA,L]
+RewriteCond %{REQUEST_URI} /static/.*
+RewriteRule static/(.*) public/static/$1 [QSA,L]
 
-RewriteCond %{REQUEST_FILENAME} /robots.txt
-RewriteRule /robots.txt public/robots.txt [QSA,L]
+RewriteCond %{REQUEST_URI} /robots.txt
+RewriteRule robots.txt public/robots.txt [QSA,L]
 
 # если ни файла ни папки нет, значит мы переводим все на файл index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /index.php [QSA,L]
+RewriteRule ^(.*)$ index.php [QSA,L]
 
 # при все этой красото пользователь ничего не должен видеть, у него пути менять в адресной строке не должны

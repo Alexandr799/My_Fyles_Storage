@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Entities;
 
 use App\Controllers\Controller;
 use Exception;

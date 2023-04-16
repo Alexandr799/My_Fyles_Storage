@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Entities;
 
 class Response
 {
@@ -33,5 +33,9 @@ class Response
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($code);
         echo json_encode($arrayToJson);
+    }
+
+    public function getPage(string $title){
+        echo file_get_contents(__DIR__);
     }
 }

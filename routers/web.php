@@ -1,7 +1,8 @@
 <?php
 use App\Controllers\Admin;
 use App\Controllers\User;
-use App\Helpers\Router;
+use App\Entities\Router;
+
 
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test
 

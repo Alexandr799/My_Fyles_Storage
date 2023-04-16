@@ -2,9 +2,11 @@
 
 namespace App\Controllers;
 
-use App\Helpers\Request;
-use App\Helpers\DataBase;
-use App\Helpers\Response;
+
+use App\Entities\DataBase;
+use App\Entities\Request;
+use App\Entities\Response;
+use App\Interfaces\Controller;
 
 class User  extends Controller
 {
@@ -20,7 +22,7 @@ class User  extends Controller
     }
 
     public function file(Request $req) {
-        echo file_get_contents('/home/alex/my-project/portfolio/myfiles_service/public/index.html');
+        echo file_get_contents('/home/alex/my-project/portfolio/myfiles_service/public/pages/index.html');
     }
 
     public function update(Request $req)

@@ -2,9 +2,11 @@
 
 namespace App\Controllers;
 
-use App\Helpers\Request;
-use App\Helpers\DataBase;
-use App\Helpers\Response;
+use App\Entities\Request;
+use App\Entities\Response;
+use App\Interfaces\Controller;
+
+
 
 class Admin extends Controller
 {

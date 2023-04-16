@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+use App\Interfaces\Controller;
 
 
 class File extends Controller

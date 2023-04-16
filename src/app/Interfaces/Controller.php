@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Controllers;
-use App\Helpers\Request;
+namespace App\Interfaces;
+use App\Entities\Request;
+
 
 class Controller
 {
