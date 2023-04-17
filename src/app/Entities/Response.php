@@ -26,6 +26,7 @@ class Response
     public static function deleteSession()
     {
         session_start();
+        $_SESSION = []; 
         session_destroy();
     }
 

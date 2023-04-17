@@ -1,8 +1,9 @@
 <?php
-use App\Controllers\Admin;
-use App\Controllers\Auth;
+use App\Handlers\Admin;
+use App\Handlers\Auth;
 use App\Controllers\User;
 use App\Entities\Router;
+use App\Handlers\IDValidator;
 
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test , также при создании api, любой путь важно начить со слов api
 // например /api/test
@@ -10,15 +11,15 @@ use App\Entities\Router;
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test
 
 
-Router::get('/api/user/{id}',Auth::create()->next(User::create()), 'index');
+Router::get('/api/user/{id}',Auth::create()->next(IDValidator::create()->next(User::create())), 'index');
 
 // Router::get('/api/user', User::create(), 'list'); 
 
 Router::post('/api/user', User::create(), 'store');
 
-Router::put('/api/user', User::create(), 'update');
+Router::put('/api/user', Auth::create()->next(IDValidator::create()->next(User::create())), 'update');
 
-Router::delete('/api/user/{id}', User::create(), 'delete');
+Router::delete('/api/user/{id}', Auth::create()->next(IDValidator::create()->next(User::create())), 'delete');
 
 
 

@@ -10,8 +10,14 @@ class DataBase
 {
     private PDO $connection;
 
+    private static $db;
+
     public static function create()
     {
+        if (!empty(static::$db)){
+            return static::$db;
+        }
+        
         return new static();
     }
 
@@ -45,6 +51,10 @@ class DataBase
             $response['message'] = $e->getMessage();
             return $response;
         };
+    }
+
+    public function lastRowID(){
+        return $this->connection->lastInsertId();
     }
 
     public function quaryWithVars(string $quary, array $params)

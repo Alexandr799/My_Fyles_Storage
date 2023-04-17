@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Handlers;
 
 use App\Entities\Request;
 use App\Entities\Response;
@@ -14,7 +14,7 @@ class Admin extends Controller
     {
         $role = Response::getSession('role');
         if (empty($role) || $role !== 'admin') {
-            Response::error(['error' => 'нет прав доступа!'], 403);
+            Response::json(['error' => 'нет прав доступа!'], 403);
         } else {
             $this->nextController($req, $method);
         }
