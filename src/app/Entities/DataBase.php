@@ -60,6 +60,8 @@ class DataBase
         } catch (Exception $e) {
             $response['success'] = false;
             $response['message'] = $e->getMessage();
+            $message = $response['message'];
+            file_put_contents(realpath('./logs/db.log'), "$message \n");
             return $response;
         };
     }

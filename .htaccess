@@ -15,4 +15,5 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
 
+
 # при все этой красото пользователь ничего не должен видеть, у него пути менять в адресной строке не должны

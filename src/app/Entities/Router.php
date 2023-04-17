@@ -68,7 +68,13 @@ class Router
         $args = static::getArgs($path);
 
         if (static::matchPath($args, $path)) {
-            parse_str(file_get_contents("php://input"), $_METHOD);
+            $body = file_get_contents("php://input");
+            $_METHOD = [];
+            if (($_SERVER)["CONTENT_TYPE"] === 'application/json') {
+                $_METHOD = json_decode($body, true);
+            } else {
+                parse_str(file_get_contents("php://input"), $_METHOD);
+            }
             $pathArgs = static::parseArgs($args);
             static::$isRelolve = true;
             return $controller->handle(new Request(array_merge($_GET, $_METHOD), $pathArgs), $method);
