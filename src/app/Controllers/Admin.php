@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Handlers;
+namespace App\Controllers;
 
 use App\Entities\Request;
 use App\Entities\Response;

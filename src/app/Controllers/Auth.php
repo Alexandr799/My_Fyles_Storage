@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Handlers;
+namespace App\Controllers;
 
 use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;
-
-
 
 class Auth extends Controller
 {

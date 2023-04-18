@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Handlers;
+namespace App\Controllers;
 
 use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;
 
-class IDValidator extends Controller
+class ValidID extends Controller
 {
     public function handle(Request $req, string $method)
     {

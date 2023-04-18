@@ -14,7 +14,7 @@ class User  extends Controller
     public function index(Request $req)
     {
         $id = $req->getArg('id');
-        $users = DataBase::create()->quaryWithVars("select * from users where id = :id", ['id' => $id]);
+        $users = DataBase::create()->quaryWithVars("select login, id, role from users where id = :id", ['id' => $id]);
 
         if (!$users['success']) return Response::json(['error' => 'Что то пошло не так...'], 500);
 
@@ -73,14 +73,6 @@ class User  extends Controller
 
         $db = DataBase::create();
 
-        if (empty($login) || empty($password) || empty($role)) return Response::json(['error' => 'Не указан пароль логин или роль'], 40);
-
-        $users = $db->quaryWithVars("select * from users where login = :login", ['login' => $login]);
-
-        if (!$users['success']) return Response::json(['error' => 'Что то пошло не так...'], 500);
-
-        if (count($users['data']) > 0) return  Response::json(['error' => 'Данный логин занят!'], 400);
-
         $updatedUser = $db->quaryWithVars(
             'INSERT INTO users (login, password,role) VALUES (:login, :password, :role)',
             [
@@ -97,7 +89,7 @@ class User  extends Controller
 
     public function list(Request $req)
     {
-        $users = DataBase::create()->quary('select * from users;');
+        $users = DataBase::create()->quary('select login, id, role  from users;');
         if ($users['success']) {
             Response::json($users['data']);
         } else {
@@ -129,6 +121,7 @@ class User  extends Controller
         Response::setSession([
             'id' => $user['data'][0]['id'],
             'role' => $user['data'][0]['role'],
+            'login'=>$user['data'][0]['login']
         ]);
 
         Response::json(['logged' => true]);
