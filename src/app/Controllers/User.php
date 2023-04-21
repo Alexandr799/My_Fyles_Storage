@@ -113,6 +113,8 @@ class User  extends Controller
             return Response::json(['error' => 'Не верный логин'], 401);
         }
 
+        if (empty($password)) return Response::json(['error' => 'Введите пароль!'], 401);
+
         if (!Crypter::verify($password, $user['data'][0]['password'])) {
             Response::deleteSession();
             return Response::json(['error' => 'Не верный пароль'], 401);

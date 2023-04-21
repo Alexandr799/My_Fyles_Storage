@@ -2,6 +2,7 @@
 
 use App\Controllers\Admin;
 use App\Controllers\Auth;
+use App\Controllers\File;
 use App\Controllers\RegisterValidator;
 use App\Controllers\UpdateValidator;
 use App\Controllers\User;
@@ -16,8 +17,6 @@ use App\Entities\Router;
 
 Router::get('/api/user/{id}',Auth::create()->next(ValidID::create()->next(User::create())), 'index');
 
-// Router::get('/api/user', User::create(), 'list'); 
-
 Router::post('/api/user', RegisterValidator::create()->next(User::create()), 'store');
 
 Router::put(
@@ -26,8 +25,7 @@ Router::put(
             ->next(ValidID::create()
             ->next(UpdateValidator::create()
             ->next(User::create()
-            )
-        )
+            ))
     ),
     'update'
 );
@@ -51,3 +49,6 @@ Router::get('/api/admin/user/{id}', Admin::create()->next(User::create()), 'inde
 Router::delete('/api/admin/user/{id}', Admin::create()->next(User::create()), 'delete');
 
 Router::put('/api/admin/user', Admin::create()->next(UpdateValidator::create()->next(User::create())), 'update');
+
+
+Router::get('/api/file', Auth::create()->next(File::create()), 'file');
