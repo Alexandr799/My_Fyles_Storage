@@ -99,11 +99,13 @@ class User  extends Controller
 
     public function login(Request $req)
     {
+        if (!empty(Response::getSession('id'))) return Response::json(['error' => 'Вы уже авторизованы!'], 400);
+
         $password = $req->getParam('password');
-        $log = $req->getParam('login');
+        $login = $req->getParam('login');
         $user = DataBase::create()->quaryWithVars(
             "select * from users where login = :login",
-            ['login' => $log]
+            ['login' => $login]
         );
 
         if (!$user['success']) return Response::json(['error' => 'Что то пошло не так...'], 500);
