@@ -30,7 +30,7 @@ class UpdateValidator extends Controller
         $currentLogin = Response::getSession('login');
 
         if (!empty($login) && $login !== $currentLogin) {
-            $users = DataBase::create()->quaryWithVars("select * from users where login = :login", ['login' => $login]);
+            $users = DataBase::create()->quary("select * from users where login = :login", ['login' => $login]);
             if (!$users['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
             if (count($users['data']) > 0) return  Response::json(['error' => 'Данный логин занят!'], 400);
         }

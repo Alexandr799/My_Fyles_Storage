@@ -14,21 +14,17 @@ class File extends Controller
     public function fileAll(Request $req)
     {
         $userId = Response::getSession('id');
-        $files = DataBase::create()->quaryWithVars(
+        $files = DataBase::create()->quary(
             'SELECT * FROM `files` WHERE `owner_user_id`=:id',
             ['id' =>$userId]
         );
         if (!$files['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
-
-        $path = realpath("./storage/filestorage") . "/user_storage_$userId";
-        if (count($files['data']) === 0 && (!(is_dir($path)))) {
-            mkdir($path);
-        }
+        
         Response::json($files['data']);
     }
     public function file(Request $req)
     {
-        $files = DataBase::create()->quaryWithVars(
+        $files = DataBase::create()->quary(
             'SELECT * FROM `files` WHERE `owner_user_id`=:owner_id AND `id`=:id',
             [
                 'owner_id' => Response::getSession('id'),
@@ -45,6 +41,14 @@ class File extends Controller
 
     public function addFile(Request $req)
     {
+        $path = $req->getParam('path');
+        $title = $req->getParam('name');
+
+        $userId = Response::getSession('id');
+        $path = realpath("./storage/filestorage") . "/user_storage_$userId";
+        
+        if (file_exists("$path" . "$title")) Response::json(['error'=>'Файл уже существует!'], 400);
+
     }
 
     public function deleteFile(Request $req)

@@ -23,7 +23,7 @@ class RegisterValidator extends Controller
        
         if (($role !== 'admin') && ($role !== 'user') ) Response::json(['error' => 'Не верно выбрана роль!'], 400);
 
-        $users = DataBase::create()->quaryWithVars("select * from users where login = :login", ['login' => $login]);
+        $users = DataBase::create()->quary("select * from users where login = :login", ['login' => $login]);
 
         if (!$users['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
 

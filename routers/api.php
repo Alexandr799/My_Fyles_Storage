@@ -57,3 +57,6 @@ Router::get('/api/file', Auth::create()->next(File::create()), 'fileAll');
 Router::get('/api/file/{id}', Auth::create()->next(File::create()), 'file');
 
 Router::post('/api/file', Auth::create()->next(File::create()), 'addFile');
+
+
+Router::post('/api/test',user::create(), 'list');

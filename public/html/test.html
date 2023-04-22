@@ -22,8 +22,8 @@
         formData.append('avatar', fileField.files[0]);
 
         try {
-            const response = await fetch('https://example.com/profile/avatar', {
-                method: 'PUT',
+            const response = await fetch('/api/', {
+                method: 'POST',
                 body: formData
             });
             const result = await response.json();

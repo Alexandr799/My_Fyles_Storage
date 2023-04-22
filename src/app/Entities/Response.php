@@ -30,8 +30,6 @@ class Response
         session_destroy();
     }
 
-
-
     public static function html(string $title, $code=200){
         $path = realpath("./public/html/$title.html");
         if (file_exists($path)) {

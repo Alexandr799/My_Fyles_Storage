@@ -8,13 +8,14 @@ use App\Entities\DataBase;
 use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;
+use Exception;
 
 class User  extends Controller
 {
     public function index(Request $req)
     {
         $id = $req->getArg('id');
-        $users = DataBase::create()->quaryWithVars("select login, id, role from users where id = :id", ['id' => $id]);
+        $users = DataBase::create()->quary("select login, id, role from users where id = :id", ['id' => $id]);
 
         if (!$users['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
 
@@ -44,7 +45,7 @@ class User  extends Controller
         $cleanParams['id'] = $id;
 
 
-        $dbres = DataBase::create()->quaryWithVars("UPDATE users SET $quary WHERE id=:id", $cleanParams);
+        $dbres = DataBase::create()->quary("UPDATE users SET $quary WHERE id=:id", $cleanParams);
 
         if (!$dbres['success']) {
             return  Response::json(['error' => 'Не удалось обновить пользователя'], 500);
@@ -56,7 +57,7 @@ class User  extends Controller
     public function delete(Request $req)
     {
         $id = $req->getArg('id');
-        $users = DataBase::create()->quaryWithVars("DELETE FROM users where id = :id", ['id' => $id]);
+        $users = DataBase::create()->quary("DELETE FROM users where id = :id", ['id' => $id]);
 
         if (!$users['success']) Response::json(['error' => 'Не удалось удалить пользователя'], 500);
 
@@ -72,19 +73,27 @@ class User  extends Controller
         $role = $req->getParam('role');
 
         $db = DataBase::create();
+        $db->startTransaction();
+        try {
+            $db->quaryTransaction(
+                'INSERT INTO users (login, password,role) VALUES (:login, :password, :role)',
+                ['login' => $login, 'password' => Crypter::crypt($password), 'role' => $role,]
+            );
+            $newUserId = $db->lastRowID();
+            $a = $db->quaryTransaction(
+                'INSERT INTO `directories` (path, owner_user_id) VALUES (:path, :owner_user_id)',
+                ['path' => '/', 'owner_user_id' => $newUserId]
+            );
+            $db->acceptTransaction();
+        } catch (Exception $e) {
+            $db->cancelTransaction();
+            $message = $e->getMessage();
+            file_put_contents(realpath('./logs/db.log'), "$message \n", FILE_APPEND);
+            Response::json(['error' => 'Не удалось создать пользователя!'], 500);
+        }
 
-        $updatedUser = $db->quaryWithVars(
-            'INSERT INTO users (login, password,role) VALUES (:login, :password, :role)',
-            [
-                'login' => $login,
-                'password' => Crypter::crypt($password),
-                'role' => $role,
-            ]
-        );
-
-        if (!$updatedUser['success']) Response::json(['error' => 'Не удалось создать пользователя!'], 500);
-
-        $newUserId = $db->lastRowID();
+        $path = realpath("./storage/filestorage") . "/user_storage_$newUserId";
+        mkdir($path);
 
         Response::setSession([
             'id' => $newUserId,
@@ -111,7 +120,7 @@ class User  extends Controller
 
         $password = $req->getParam('password');
         $login = $req->getParam('login');
-        $user = DataBase::create()->quaryWithVars(
+        $user = DataBase::create()->quary(
             "select * from users where login = :login",
             ['login' => $login]
         );
@@ -136,7 +145,10 @@ class User  extends Controller
             'login' => $user['data'][0]['login']
         ]);
 
-        Response::json(['logged' => true]);
+        Response::json([
+            'logged' => true,
+            'id' => $user['data'][0]['id'],
+        ]);
     }
 
     public function logout(Request $req)
