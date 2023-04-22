@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Entities\Crypter;
 use App\Entities\DataBase;
+use App\Entities\Logger;
 use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;
@@ -87,8 +88,7 @@ class User  extends Controller
             $db->acceptTransaction();
         } catch (Exception $e) {
             $db->cancelTransaction();
-            $message = $e->getMessage();
-            file_put_contents(realpath('./logs/db.log'), "$message \n", FILE_APPEND);
+            Logger::printLog($e->getMessage(), 'db');
             Response::json(['error' => 'Не удалось создать пользователя!'], 500);
         }
 

@@ -34,7 +34,7 @@ class DataBase
             $db =  $_ENV['DB'];
             $this->connection = new PDO("$db:host=$host;dbname=$dbname;charset=$charset", $user, $password);
         } catch (PDOException $e) {
-            print_r($e);
+            Logger::printLog($e->getMessage(), 'db');
         };
     }
 
@@ -57,8 +57,7 @@ class DataBase
         } catch (Exception $e) {
             $response['success'] = false;
             $response['message'] = $e->getMessage();
-            $message = $response['message'];
-            file_put_contents(realpath('./logs/db.log'), "$message \n", FILE_APPEND);
+            Logger::printLog($e->getMessage(), 'db');
             return $response;
         };
     }
