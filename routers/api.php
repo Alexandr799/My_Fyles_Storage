@@ -51,4 +51,9 @@ Router::delete('/api/admin/user/{id}', Admin::create()->next(User::create()), 'd
 Router::put('/api/admin/user', Admin::create()->next(UpdateValidator::create()->next(User::create())), 'update');
 
 
-Router::get('/api/file', Auth::create()->next(File::create()), 'file');
+
+Router::get('/api/file', Auth::create()->next(File::create()), 'fileAll');
+
+Router::get('/api/file/{id}', Auth::create()->next(File::create()), 'file');
+
+Router::post('/api/file', Auth::create()->next(File::create()), 'addFile');

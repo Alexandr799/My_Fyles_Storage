@@ -15,17 +15,17 @@ class RegisterValidator extends Controller
         $password = $req->getParam('password');
         $role = $req->getParam('role');
 
-        if (empty($password) && (strlen($password)<5)) return Response::json(['error' => 'Пароль должен быть длинее 5 или более символов'], 400);
+        if (empty($password) && (strlen($password)<5)) Response::json(['error' => 'Пароль должен быть длинее 5 или более символов'], 400);
 
-        if (empty($login)) return Response::json(['error' => 'Не указан логин'], 400);
+        if (empty($login)) Response::json(['error' => 'Не указан логин'], 400);
 
-        if(!filter_var($login, FILTER_VALIDATE_EMAIL)) return Response::json(['Логин должен быть email! Введите правильный email'], 400);
+        if(!filter_var($login, FILTER_VALIDATE_EMAIL)) Response::json(['Логин должен быть email! Введите правильный email'], 400);
        
-        if (($role !== 'admin') && ($role !== 'user') ) return Response::json(['error' => 'Не верно выбрана роль!'], 400);
+        if (($role !== 'admin') && ($role !== 'user') ) Response::json(['error' => 'Не верно выбрана роль!'], 400);
 
         $users = DataBase::create()->quaryWithVars("select * from users where login = :login", ['login' => $login]);
 
-        if (!$users['success']) return Response::json(['error' => 'Что то пошло не так...'], 500);
+        if (!$users['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
 
         if (count($users['data']) > 0) return  Response::json(['error' => 'Данный логин занят!'], 400);
 

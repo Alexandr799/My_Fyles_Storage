@@ -12,7 +12,7 @@ class Auth extends Controller
     {
         $id = Response::getSession('id');
 
-        if (empty($id)) return Response::json(['error' => 'Вы не авторизованы!'], 403);
+        if (empty($id)) Response::json(['error' => 'Вы не авторизованы!'], 403);
 
    
         $this->nextController($req, $method);

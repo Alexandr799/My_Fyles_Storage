@@ -9,6 +9,7 @@ class Response
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($code);
         echo json_encode($arrayToJson);
+        die();
     }
 
     public static function setSession($sessionValues)
@@ -26,7 +27,6 @@ class Response
     public static function deleteSession()
     {
         session_start();
-        $_SESSION = []; 
         session_destroy();
     }
 
@@ -41,5 +41,6 @@ class Response
             http_response_code(500);
             echo 'Шаблона не найдено!';
         }
+        die();
     }
 }

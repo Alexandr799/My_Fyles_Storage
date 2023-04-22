@@ -16,7 +16,7 @@ class User  extends Controller
         $id = $req->getArg('id');
         $users = DataBase::create()->quaryWithVars("select login, id, role from users where id = :id", ['id' => $id]);
 
-        if (!$users['success']) return Response::json(['error' => 'Что то пошло не так...'], 500);
+        if (!$users['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
 
         if (count($users['data']) === 0) return  Response::json(['error' => 'Такого пользователя не существует!'], 404);
 
@@ -58,10 +58,10 @@ class User  extends Controller
         $id = $req->getArg('id');
         $users = DataBase::create()->quaryWithVars("DELETE FROM users where id = :id", ['id' => $id]);
 
-        if (!$users['success']) return Response::json(['error' => 'Не удалось удалить пользователя'], 500);
+        if (!$users['success']) Response::json(['error' => 'Не удалось удалить пользователя'], 500);
 
         if (Response::getSession('id') == $id) Response::deleteSession();
-        
+
         Response::json(['delete' => true]);
     }
 
@@ -82,9 +82,17 @@ class User  extends Controller
             ]
         );
 
-        if (!$updatedUser['success']) return Response::json(['error' => 'Не удалось создать пользователя!'], 500);
+        if (!$updatedUser['success']) Response::json(['error' => 'Не удалось создать пользователя!'], 500);
 
-        Response::json(['create' => true, 'id' => $db->lastRowID()]);
+        $newUserId = $db->lastRowID();
+
+        Response::setSession([
+            'id' => $newUserId,
+            'role' => $role,
+            'login' => $login
+        ]);
+
+        Response::json(['create' => true, 'id' => $newUserId, 'logged' => true]);
     }
 
     public function list(Request $req)
@@ -99,7 +107,7 @@ class User  extends Controller
 
     public function login(Request $req)
     {
-        if (!empty(Response::getSession('id'))) return Response::json(['error' => 'Вы уже авторизованы!'], 400);
+        if (!empty(Response::getSession('id'))) Response::json(['error' => 'Вы уже авторизованы!'], 400);
 
         $password = $req->getParam('password');
         $login = $req->getParam('login');
@@ -108,24 +116,24 @@ class User  extends Controller
             ['login' => $login]
         );
 
-        if (!$user['success']) return Response::json(['error' => 'Что то пошло не так...'], 500);
+        if (!$user['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
 
         if (!(count($user['data']) === 1)) {
             Response::deleteSession();
-            return Response::json(['error' => 'Не верный логин'], 401);
+            Response::json(['error' => 'Не верный логин'], 401);
         }
 
-        if (empty($password)) return Response::json(['error' => 'Введите пароль!'], 401);
+        if (empty($password)) Response::json(['error' => 'Введите пароль!'], 401);
 
         if (!Crypter::verify($password, $user['data'][0]['password'])) {
             Response::deleteSession();
-            return Response::json(['error' => 'Не верный пароль'], 401);
+            Response::json(['error' => 'Не верный пароль'], 401);
         }
 
         Response::setSession([
             'id' => $user['data'][0]['id'],
             'role' => $user['data'][0]['role'],
-            'login'=>$user['data'][0]['login']
+            'login' => $user['data'][0]['login']
         ]);
 
         Response::json(['logged' => true]);

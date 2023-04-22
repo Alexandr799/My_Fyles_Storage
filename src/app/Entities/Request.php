@@ -8,6 +8,8 @@ class Request
     private array $arguments;
     private array $path;
 
+    private array $files;
+
     public array $props = [];
 
     public function __construct(array $params, array $args)
@@ -15,6 +17,7 @@ class Request
         $this->parameters = $params;
         $this->arguments = $args;
         $this->path = $_SERVER;
+        $this->files = $_FILES;
     }
 
     public function getParam(string $paramName)

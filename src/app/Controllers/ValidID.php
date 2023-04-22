@@ -13,8 +13,8 @@ class ValidID extends Controller
         $id = Response::getSession('id');
         $idResponse =  $req->getParam('id') ?? $req->getArg('id');
 
-        if (empty($idResponse)) return Response::json(['error' => 'Не задан id в запросе!'], 400);
-        if ($id != $req->getArg('id') && $id != $req->getParam('id')) return Response::json(['error' => 'Нет прав на выполнение действия!'], 403);
+        if (empty($idResponse)) Response::json(['error' => 'Не задан id в запросе!'], 400);
+        if ($id != $req->getArg('id') && $id != $req->getParam('id')) Response::json(['error' => 'Нет прав на выполнение действия!'], 403);
         
         $this->nextController($req, $method);
     }
