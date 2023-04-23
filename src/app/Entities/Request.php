@@ -10,7 +10,7 @@ class Request
 
     private array $files;
 
-    public array $props = [];
+    private array $props = [];
 
     public function __construct(array $params, array $args)
     {
@@ -25,18 +25,18 @@ class Request
         return $this->parameters[$paramName];
     }
 
-    public function getParamAll()
-    {
-        return $this->parameters;
-    }
-
     public function getArg(string $argName)
     {
         return $this->arguments[$argName];
     }
 
-    public function getArgAll()
+    public function setInProps(string $key, mixed $value): void
     {
-        return $this->arguments;
+        $this->props[$key] = $value;
+    }
+
+    public function getProps(string $key): mixed
+    {
+        return $this->props[$key];
     }
 }

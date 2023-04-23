@@ -5,9 +5,6 @@ namespace App\Custom;
 use App\Entities\Crypter;
 use Exception;
 
-/**
- * Summary of Filefacade
- */
 class Filefacade
 {
 

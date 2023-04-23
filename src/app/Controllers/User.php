@@ -81,7 +81,7 @@ class User  extends Controller
                 ['login' => $login, 'password' => Crypter::crypt($password), 'role' => $role,]
             );
             $newUserId = $db->lastRowID();
-            $a = $db->quaryTransaction(
+            $db->quaryTransaction(
                 'INSERT INTO `directories` (path, owner_user_id) VALUES (:path, :owner_user_id)',
                 ['path' => '/', 'owner_user_id' => $newUserId]
             );
@@ -116,33 +116,12 @@ class User  extends Controller
 
     public function login(Request $req)
     {
-        if (!empty(Response::getSession('id'))) Response::json(['error' => 'Вы уже авторизованы!'], 400);
-
-        $password = $req->getParam('password');
-        $login = $req->getParam('login');
-        $user = DataBase::create()->quary(
-            "select * from users where login = :login",
-            ['login' => $login]
-        );
-
-        if (!$user['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
-
-        if (!(count($user['data']) === 1)) {
-            Response::deleteSession();
-            Response::json(['error' => 'Не верный логин'], 401);
-        }
-
-        if (empty($password)) Response::json(['error' => 'Введите пароль!'], 401);
-
-        if (!Crypter::verify($password, $user['data'][0]['password'])) {
-            Response::deleteSession();
-            Response::json(['error' => 'Не верный пароль'], 401);
-        }
+        $user = $req->getProps('user');
 
         Response::setSession([
-            'id' => $user['data'][0]['id'],
-            'role' => $user['data'][0]['role'],
-            'login' => $user['data'][0]['login']
+            'id' => $user['id'],
+            'role' => $user['role'],
+            'login' => $user['login']
         ]);
 
         Response::json([

@@ -3,6 +3,7 @@
 use App\Controllers\Admin;
 use App\Controllers\Auth;
 use App\Controllers\File;
+use App\Controllers\LoginValidation;
 use App\Controllers\RegisterValidator;
 use App\Controllers\UpdateValidator;
 use App\Controllers\User;
@@ -15,18 +16,20 @@ use App\Entities\Router;
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test
 
 
-Router::get('/api/user/{id}',Auth::create()->next(ValidID::create()->next(User::create())), 'index');
+Router::get('/api/user/{id}', Auth::create()->next(ValidID::create()->next(User::create())), 'index');
 
 Router::post('/api/user', RegisterValidator::create()->next(User::create()), 'store');
 
 Router::put(
     '/api/user',
-     Auth::create()
-            ->next(ValidID::create()
-            ->next(UpdateValidator::create()
-            ->next(User::create()
-            ))
-    ),
+    Auth::create()
+        ->next(
+            ValidID::create()
+                ->next(UpdateValidator::create()
+                    ->next(
+                        User::create()
+                    ))
+        ),
     'update'
 );
 
@@ -34,7 +37,7 @@ Router::delete('/api/user/{id}', Auth::create()->next(ValidID::create()->next(Us
 
 
 
-Router::get('/api/login', User::create(), 'login');
+Router::get('/api/login', LoginValidation::create()->next(User::create()), 'login');
 
 Router::get('/api/reset_password', User::create(), 'reset_password');
 
@@ -59,4 +62,4 @@ Router::get('/api/file/{id}', Auth::create()->next(File::create()), 'file');
 Router::post('/api/file', Auth::create()->next(File::create()), 'addFile');
 
 
-Router::post('/api/test',user::create(), 'list');
+Router::post('/api/test', User::create(), 'list');
