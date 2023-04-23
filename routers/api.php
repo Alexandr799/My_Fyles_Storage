@@ -1,7 +1,9 @@
 <?php
+
 use App\Controllers\File;
 use App\Controllers\Middlewares\Admin;
 use App\Controllers\Middlewares\Auth;
+use App\Controllers\Middlewares\FileAddValidator;
 use App\Controllers\Middlewares\LoginValidation;
 use App\Controllers\Middlewares\RegisterValidator;
 use App\Controllers\Middlewares\UpdateValidator;
@@ -57,7 +59,14 @@ Router::get('/api/file', Auth::create()->next(File::create()), 'fileAll');
 
 Router::get('/api/file/{id}', Auth::create()->next(File::create()), 'file');
 
-Router::post('/api/file', Auth::create()->next(File::create()), 'addFile');
-
+Router::post(
+    '/api/file',
+    Auth::create()
+        ->next(FileAddValidator::create()
+            ->next(
+                File::create()
+            )),
+    'addFile'
+);
 
 Router::post('/api/test', User::create(), 'list');

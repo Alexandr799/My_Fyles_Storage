@@ -39,4 +39,8 @@ class Request
     {
         return $this->props[$key];
     }
+
+    public function getFile(string $key){
+        return $this->files[$key];
+    }
 }

@@ -92,9 +92,6 @@ class User  extends Controller
             Response::json(['error' => 'Не удалось создать пользователя!'], 500);
         }
 
-        $path = realpath("./storage/filestorage") . "/user_storage_$newUserId";
-        mkdir($path);
-
         Response::setSession([
             'id' => $newUserId,
             'role' => $role,
