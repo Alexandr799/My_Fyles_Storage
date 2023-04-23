@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\Middlewares;
 
 use App\Entities\Crypter;
 use App\Entities\DataBase;

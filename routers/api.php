@@ -1,20 +1,18 @@
 <?php
-
-use App\Controllers\Admin;
-use App\Controllers\Auth;
 use App\Controllers\File;
-use App\Controllers\LoginValidation;
-use App\Controllers\RegisterValidator;
-use App\Controllers\UpdateValidator;
+use App\Controllers\Middlewares\Admin;
+use App\Controllers\Middlewares\Auth;
+use App\Controllers\Middlewares\LoginValidation;
+use App\Controllers\Middlewares\RegisterValidator;
+use App\Controllers\Middlewares\UpdateValidator;
+use App\Controllers\Middlewares\ValidID;
 use App\Controllers\User;
-use App\Controllers\ValidID;
 use App\Entities\Router;
 
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test , также при создании api, любой путь важно начить со слов api
 // например /api/test
 
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test
-
 
 Router::get('/api/user/{id}', Auth::create()->next(ValidID::create()->next(User::create())), 'index');
 
