@@ -69,4 +69,25 @@ Router::post(
     'addFile'
 );
 
+Router::get(
+    '/api/file/{id}',
+    Auth::create()
+        ->next(File::create()),
+    'file'
+);
+
+Router::get(
+    '/api/file',
+    Auth::create()
+        ->next(File::create()),
+    'fileAll'
+);
+
+Router::put(
+    '/api/file',
+    Auth::create()
+        ->next(File::create()),
+    'updateFile'
+);
+
 Router::post('/api/test', User::create(), 'list');

@@ -14,7 +14,6 @@ class Auth extends Controller
 
         if (empty($id)) Response::json(['error' => 'Вы не авторизованы!'], 403);
 
-   
         $this->nextController($req, $method);
     }
 }

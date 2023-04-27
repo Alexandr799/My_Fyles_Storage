@@ -26,8 +26,11 @@ class UpdateValidator extends Controller
         if ((!empty($role)) && (($role !== 'admin') && ($role !== 'user'))) {
             Response::json(['error' => 'Не верно выбрана роль!'], 400);
         }
+        $data = DataBase::create()->quary('SELECT  FROM `users` WHERE id=:id',  ['id' => Response::getSession('id')]);
 
-        $currentLogin = Response::getSession('login');
+        if (!$data['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
+
+        $currentLogin = $data['data']['login'];
 
         if (!empty($login) && $login !== $currentLogin) {
             $users = DataBase::create()->quary("select * from users where login = :login", ['login' => $login]);

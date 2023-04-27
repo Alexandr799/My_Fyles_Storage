@@ -40,7 +40,8 @@ class Request
         return $this->props[$key];
     }
 
-    public function getFile(string $key){
+    public function getFile(string $key): array | null
+    {
         return $this->files[$key];
     }
 }
