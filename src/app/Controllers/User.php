@@ -123,7 +123,7 @@ class User  extends Controller
 
         Response::json([
             'logged' => true,
-            'id' => $user['data'][0]['id'],
+            'id' => $user['id'],
         ]);
     }
 

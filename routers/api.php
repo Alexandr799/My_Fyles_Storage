@@ -25,10 +25,12 @@ Router::put(
     Auth::create()
         ->next(
             ValidID::create()
-                ->next(UpdateValidator::create()
-                    ->next(
-                        User::create()
-                    ))
+                ->next(
+                    UpdateValidator::create()
+                        ->next(
+                            User::create()
+                        )
+                )
         ),
     'update'
 );
@@ -86,7 +88,8 @@ Router::get(
 Router::put(
     '/api/file',
     Auth::create()
-        ->next(File::create()),
+        ->next(
+            File::create()),
     'updateFile'
 );
 
