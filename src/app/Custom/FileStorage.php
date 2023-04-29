@@ -14,9 +14,15 @@ class FileStorage
         if (!$result) throw new Exception("Не удалось переименовать файл!");
     }
 
-    public static function addFile(array $file,int | string $idFile)
+    public static function addFile(array $file, int | string $idFile)
     {
         $result = move_uploaded_file($file["tmp_name"], realpath('./storage/filestorage') . "/$idFile" . '_' . $file['name']);
-        if (!$result) throw new Exception("Не удалось переименовать файл!");
+        if (!$result) throw new Exception("Не удалось создать файл!");
+    }
+
+    public static function deleteFile(string $file, int | string $idFile)
+    {
+        $result = unlink(realpath('./storage/filestorage') . "/$idFile" . '_' . $file);
+        if (!$result) throw new Exception("Не удалось удалить файл!");
     }
 }

@@ -82,23 +82,20 @@ class User  extends Controller
             );
             $newUserId = $db->lastRowID();
             $db->quaryTransaction(
-                'INSERT INTO `directories` (path, owner_user_id) VALUES (:path, :owner_user_id)',
-                ['path' => '/', 'owner_user_id' => $newUserId]
+                'INSERT INTO `directories` (pwd, owner_user_id) VALUES (:pwd, :owner_user_id)',
+                ['pwd' => '/', 'owner_user_id' => $newUserId]
             );
             $db->acceptTransaction();
+            Response::setSession([
+                'id' => $newUserId,
+            ]);
+    
+            Response::json(['create' => true, 'id' => $newUserId, 'logged' => true]);
         } catch (Exception $e) {
             $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
             Response::json(['error' => 'Не удалось создать пользователя!'], 500);
         }
-
-        Response::setSession([
-            'id' => $newUserId,
-            'role' => $role,
-            'login' => $login
-        ]);
-
-        Response::json(['create' => true, 'id' => $newUserId, 'logged' => true]);
     }
 
     public function list(Request $req)
@@ -117,8 +114,6 @@ class User  extends Controller
 
         Response::setSession([
             'id' => $user['id'],
-            'role' => $user['role'],
-            'login' => $user['login']
         ]);
 
         Response::json([

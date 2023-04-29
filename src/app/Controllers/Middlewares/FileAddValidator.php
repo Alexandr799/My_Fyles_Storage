@@ -20,15 +20,15 @@ class FileAddValidator extends Controller
 
         if ($file['size'] > 2000000000) Response::json(['error' => 'Ограничение по загрузке файла 2 гигабайта!'], 400);
 
-        if (empty($req->getParam('path'))) Response::json(['error' => 'Укажите путь к файлу в вашем хранилище!'], 400);
+        if (empty($req->getParam('dir_id'))) Response::json(['error' => 'Укажите путь к файлу в вашем хранилище!'], 400);
 
         $directory = DataBase::create()->quary(
-            "SELECT u.id as user_id, d.id as directory_id, d.path as path
+            "SELECT u.id as user_id, d.id as directory_id, d.pwd as pwd
             FROM `directories` as d
             INNER JOIN users as u
             on d.owner_user_id = u.id
-            HAVING user_id = :user_id AND path = :path;",
-            ['path' => $req->getParam('path'), 'user_id' => Response::getSession('id')]
+            HAVING user_id = :user_id AND directory_id = :dir_id;",
+            ['dir_id' => $req->getParam('dir_id'), 'user_id' => Response::getSession('id')]
         );
 
         if (!$directory['success']) Response::json(['error' => 'Что то пошло не так!'], 500);
@@ -41,12 +41,10 @@ class FileAddValidator extends Controller
             INNER JOIN `directories` as d
             on f.directory = d.id
             HAVING file_name = :file_name AND directory_id = :directory_id;",
-            ['directory_id' => $directory['data'][0]['directory_id'], 'file_name' => $file['name']]
+            ['directory_id' => $req->getParam('dir_id'), 'file_name' => $file['name']]
         );
 
         if (count($fileData['data']) > 0) Response::json(['error' => 'Файл с таким названием уже существует!'], 400);
-
-        $req->setInProps('directory_id', $directory['data'][0]['directory_id']);
 
         $this->nextController($req, $method);
     }

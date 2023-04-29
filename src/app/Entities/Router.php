@@ -79,6 +79,9 @@ class Router
             }
             $pathArgs = static::parseArgs($args);
             static::$isRelolve = true;
+            foreach ($_METHOD as $key => $val) {
+                if (!empty($val)) $_METHOD[$key] = trim($val);
+            }
             return $controller->handle(new Request(array_merge($_GET, $_METHOD), $pathArgs), $method);
         };
     }
