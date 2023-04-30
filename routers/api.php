@@ -26,7 +26,11 @@ Router::get(
     'index'
 );
 
-Router::post('/api/user', RegisterValidator::create()->next(User::create()), 'store');
+Router::post(
+    '/api/user',
+    RegisterValidator::create()->next(User::create()),
+    'store'
+);
 
 Router::put(
     '/api/user',
@@ -89,7 +93,11 @@ Router::get(
     'fileAll'
 );
 
-Router::get('/api/file/{id}', Auth::create()->next(File::create()), 'file');
+Router::get(
+    '/api/file/{id}',
+    Auth::create()->next(File::create()),
+    'file'
+);
 
 Router::post(
     '/api/file',
@@ -123,7 +131,7 @@ Router::delete(
 
 Router::post(
     '/api/directory',
-    Auth::create()->next(File::create()),
+    Auth::create()->next(DirectoryAddValidator::create()->next(File::create())),
     'addDirectory'
 );
 
@@ -137,6 +145,12 @@ Router::get(
     '/api/directory/{id}',
     Auth::create()->next(File::create()),
     'infoDirectory'
+);
+
+Router::delete(
+    '/api/directory/{id}',
+    Auth::create()->next(File::create()),
+    'deleteDirectory'
 );
 
 

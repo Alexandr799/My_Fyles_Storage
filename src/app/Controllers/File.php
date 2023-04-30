@@ -186,7 +186,7 @@ class File extends Controller
         Response::json([
             'id' => $data['id'],
             'pwd' => $data['pwd'],
-            'owner'=>$data['owner'],
+            'owner' => $data['owner'],
             'children_directories' => isset($data['dirs']) ? explode('===', $data['dirs']) : [],
             'children_files' => isset($data['files']) ? explode('===', $data['files']) : [],
         ]);
@@ -194,6 +194,57 @@ class File extends Controller
 
     public function deleteDirectory(Request $req)
     {
-        
+        $files = [];
+        $directories = [];
+
+        $db = DataBase::create();
+
+        $dirInfo = $db->quary(
+            "SELECT id, pwd FROM `directories`  WHERE id = :id AND owner_user_id=:owner",
+            ['id' => $req->getArg('id'), 'owner' => Response::getSession('id')]
+        );
+
+        if (!$dirInfo['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
+        if (count($dirInfo['data']) === 0) Response::json(['error' => 'Такой директории нет, или вы не имеете к нему доступа'], 404);
+
+        $dirInfo = $dirInfo['data'][0];
+        if ($dirInfo['pwd'] === '/') Response::json(['error' => 'Корневую директорию можно удалить, только в случае удаления аккаунта!'], 400);
+
+        $db->startTransaction();
+        try {
+
+            $filesOld =  $db->quaryTransaction(
+                "SELECT GROUP_CONCAT(id SEPARATOR '===') as id 
+                FROM files WHERE owner_user_id=:id",
+                ['id' => Response::getSession('id')]
+            );
+            $filesOld  = explode('===', $filesOld[0]['id']);
+            unset($filesOld[0]);
+            $filesOld = array_values($filesOld);
+            var_dump($filesOld);
+
+
+            // $db->quaryTransaction(
+            //     'DELETE FROM `directories` WHERE id=:id',
+            //     ['id' => Response::getSession('id')]
+            // );
+
+            $filesNew =  $db->quaryTransaction(
+                "SELECT GROUP_CONCAT(id SEPARATOR '===') as id
+                FROM files WHERE owner_user_id=:id",
+                ['id' => Response::getSession('id')]
+            );
+
+            $filesNew  = explode('===', $filesNew[0]['id']);
+            var_dump($filesNew);
+            var_dump(array_diff($filesNew, $filesOld));
+
+
+            
+        } catch (Exception $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Не удалить директорию'], 500);
+        }
     }
 }
