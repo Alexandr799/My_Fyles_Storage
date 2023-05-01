@@ -2,6 +2,8 @@
 
 namespace App\Custom;
 
+use App\Entities\DataBase;
+use App\Entities\Response;
 use Exception;
 
 class FileStorage
@@ -42,10 +44,24 @@ class FileStorage
         }, $firstExp,  $secondExp);
     }
 
-    public static function getAllFileRecursive(int | string $id, null | string | int $parent_dir_id, &$files = []):array
+    public static function getAllFileRecursive(int | string $id, null | string | int $parent_dir_id, DataBase $db,  $files = []): array
     {
-        if (empty($parent_dir_id)) {
-            
-        }
+        if (empty($parent_dir_id)) return $files;
+
+        $filesFromDb= $db->quaryTransaction(
+            "SELECT id, name FROM `files`  WHERE directory = :id",
+            ['id' => $id]
+        );
+
+        $files = array_merge($files, $filesFromDb);
+
+        $dirInfo = $db->quaryTransaction(
+            "SELECT id, pwd, parent_dir_id FROM `directories`  WHERE id = :id",
+            ['id' => $parent_dir_id]
+        )[0];
+
+        $filesFromDb = static::getAllFileRecursive($dirInfo['id'], $dirInfo['parent_dir_id'], $db, $files);
+
+        return $filesFromDb;
     }
 }

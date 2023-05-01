@@ -202,9 +202,10 @@ class File extends Controller
 
         if (!$dirInfo['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
         if (count($dirInfo['data']) === 0) Response::json(['error' => 'Такой директории нет, или вы не имеете к нему доступа'], 404);
-        $dirInfo  = $dirInfo['data'];
+        $dirInfo  = $dirInfo['data'][0];
 
-        $files = FileStorage::getAllFileRecursive($dirInfo['id'], $dirInfo['parent_dir_id']);
-        
+        $db->startTransaction();
+        $files = FileStorage::getAllFileRecursive($dirInfo['id'], $dirInfo['parent_dir_id'], $db);
+        var_dump($files);
     }
 }

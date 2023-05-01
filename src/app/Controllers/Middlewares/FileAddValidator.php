@@ -20,7 +20,7 @@ class FileAddValidator extends Controller
 
         if ($file['size'] > 2000000000) Response::json(['error' => 'Ограничение по загрузке файла 2 гигабайта!'], 400);
 
-        if (empty($req->getParam('dir_id'))) Response::json(['error' => 'Укажите путь к файлу в вашем хранилище!'], 400);
+        if (empty($req->getParam('dir_id'))) Response::json(['error' => 'Укажите id директории для хранения!'], 400);
 
         $directory = DataBase::create()->quary(
             "SELECT u.id as user_id, d.id as directory_id, d.pwd as pwd
