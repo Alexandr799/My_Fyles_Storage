@@ -1,18 +1,20 @@
 <?php
-
+use App\Controllers\DirectoryMiddlewares\Middlewares\DeleteDirectoryValidator;
+use App\Controllers\DirectoryMiddlewares\Middlewares\DirectoryAddValidator;
+use App\Controllers\DirectoryMiddlewares\Middlewares\UpdateDirValidator;
 use App\Controllers\File;
-use App\Controllers\Middlewares\Admin;
-use App\Controllers\Middlewares\Auth;
-use App\Controllers\Middlewares\DeleteFileValidator;
-use App\Controllers\Middlewares\DirectoryAddValidator;
-use App\Controllers\Middlewares\FileAddValidator;
-use App\Controllers\Middlewares\LoginValidation;
-use App\Controllers\Middlewares\RegisterValidator;
-use App\Controllers\Middlewares\UpdateDirValidator;
-use App\Controllers\Middlewares\UpdateFileValidator;
-use App\Controllers\Middlewares\UpdateValidator;
-use App\Controllers\Middlewares\ValidID;
+use App\Controllers\FilesMiddlewares\Middlewares\DeleteFileValidator;
+use App\Controllers\FilesMiddlewares\Middlewares\FileAddValidator;
+use App\Controllers\FilesMiddlewares\Middlewares\UpdateFileValidator;
+use App\Controllers\ShareMiddlewares\Middlewares\ShareInfoValidator;
+use App\Controllers\ShareMiddlewares\Middlewares\ShareValidator;
 use App\Controllers\User;
+use App\Controllers\UserMiddlewares\Middlewares\Admin;
+use App\Controllers\UserMiddlewares\Middlewares\Auth;
+use App\Controllers\UserMiddlewares\Middlewares\LoginValidation;
+use App\Controllers\UserMiddlewares\Middlewares\RegisterValidator;
+use App\Controllers\UserMiddlewares\Middlewares\UpdateValidator;
+use App\Controllers\UserMiddlewares\Middlewares\ValidID;
 use App\Entities\Router;
 
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test , также при создании api, любой путь важно начить со слов api
@@ -149,9 +151,32 @@ Router::get(
 
 Router::delete(
     '/api/directory/{id}',
-    Auth::create()->next(File::create()),
+    Auth::create()->next(DeleteDirectoryValidator::create()->next(File::create())),
     'deleteDirectory'
 );
 
+Router::get(
+    '/api/user/search/{email}',
+    Auth::create()->next(User::create()),
+    'getByEmail'
+);
 
-Router::post('/api/test', User::create(), 'list');
+Router::put(
+    '/api/files/share/{id}/{user_id}',
+    Auth::create()->next(ShareValidator::create()->next(File::create())),
+    'shareFile'
+);
+
+Router::get(
+    '/api/files/share/{id}',
+    Auth::create()->next(ShareInfoValidator::create()->next(File::create())),
+    'shareFileInfo'
+);
+
+Router::delete(
+    '/api/files/share/{id}/{user_id}',
+    Auth::create()->next(File::create()),
+    'deleteShareFile'
+);
+
+

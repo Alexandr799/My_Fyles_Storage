@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controllers\Middlewares;
+namespace App\Controllers\UserMiddlewares\Middlewares;
 
-use App\Entities\DataBase;
+use App\Custom\DataBase;
 use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;
@@ -26,7 +26,7 @@ class UpdateValidator extends Controller
         if ((!empty($role)) && (($role !== 'admin') && ($role !== 'user'))) {
             Response::json(['error' => 'Не верно выбрана роль!'], 400);
         }
-        $data = DataBase::create()->quary('SELECT  FROM `users` WHERE id=:id',  ['id' => Response::getSession('id')]);
+        $data = DataBase::create()->quary('SELECT * FROM `users` WHERE id=:id',  ['id' => Response::getSession('id')]);
 
         if (!$data['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
 

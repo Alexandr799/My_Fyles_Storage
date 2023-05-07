@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Custom\FileStorage;
-use App\Entities\DataBase;
+use App\Custom\DataBase;
 use App\Entities\Logger;
 use App\Entities\Request;
 use App\Entities\Response;
@@ -16,10 +16,11 @@ class File extends Controller
     {
         $userId = Response::getSession('id');
         $files = DataBase::create()->quary(
-            'SELECT f.id as file_id, d.pwd as pwd, f.name as file_name, d.id as directory_id
+            "SELECT f.id as file_id, d.pwd as pwd, f.name as file_name, d.id as directory_id, 
+            CONCAT('/download/', f.id) as download_link 
             FROM files as f
             INNER JOIN directories as d on d.id = f.directory
-            WHERE f.owner_user_id=:id',
+            WHERE f.owner_user_id=:id",
             ['id' => Response::getSession('id')]
         );
         if (!$files['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
@@ -29,10 +30,11 @@ class File extends Controller
     public function file(Request $req)
     {
         $files = DataBase::create()->quary(
-            'SELECT f.id as file_id, d.pwd as pwd, f.name as file_name, d.id as directory_id
+            "SELECT f.id as file_id, d.pwd as pwd, f.name as file_name, d.id as directory_id,
+            CONCAT('/download/', f.id) as download_link 
             FROM files as f
             INNER JOIN directories as d on d.id = f.directory
-            WHERE f.owner_user_id=:owner_id AND f.id=:id',
+            WHERE f.owner_user_id=:owner_id AND f.id=:id",
             [
                 'owner_id' => Response::getSession('id'),
                 'id' => $req->getArg('id')
@@ -195,17 +197,120 @@ class File extends Controller
     public function deleteDirectory(Request $req)
     {
         $db = DataBase::create();
-        $dirInfo = $db->quary(
-            "SELECT id, pwd, parent_dir_id FROM `directories`  WHERE id = :id AND owner_user_id=:owner",
-            ['id' => $req->getArg('id'), 'owner' => Response::getSession('id')]
-        );
-
-        if (!$dirInfo['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
-        if (count($dirInfo['data']) === 0) Response::json(['error' => 'Такой директории нет, или вы не имеете к нему доступа'], 404);
-        $dirInfo  = $dirInfo['data'][0];
 
         $db->startTransaction();
-        $files = FileStorage::getAllFileRecursive($dirInfo['id'], $dirInfo['parent_dir_id'], $db);
-        var_dump($files);
+        try {
+            $files = FileStorage::getAllFileRecursive($req->getProps('id'), $db);
+
+            $db->quaryTransaction(
+                'DELETE FROM `directories` WHERE id = :id AND owner_user_id=:owner',
+                ['id' => $req->getArg('id'), 'owner' => Response::getSession('id')]
+            );
+
+            FileStorage::deleteFileAll($files);
+            $db->acceptTransaction();
+            Response::json(['delete' => 'true']);
+        } catch (Exception $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Не удалось удалить файл!'], 500);
+        }
+    }
+
+
+    public function shareFile(Request $req)
+    {
+        $db = DataBase::create();
+        $db->quary(
+            '
+            INSERT INTO `share_files` (`reader_user_id`,`file_id`) 
+            SELECT :reader, :file FROM DUAL WHERE NOT EXISTS 
+            (SELECT * FROM `share_files` WHERE `reader_user_id`=:reader AND `file_id`=:file LIMIT 1);
+            SELECT id from `share_files` WHERE `reader_user_id`=:reader AND `file_id`=:file;
+            ',
+            ['reader' => $req->getArg('user_id'), 'file' => $req->getArg('id')]
+        );
+
+        $share = $db->quary(
+            'SELECT id FROM `share_files` WHERE `reader_user_id`=:reader AND `file_id`=:file',
+            ['reader' => $req->getArg('user_id'), 'file' => $req->getArg('id')]
+        );
+
+        if (!$share['success']) Response::json(['error' => 'Что то пошло не так!'], 500);
+
+        $id = $share['data'][0]['id'];
+
+        Response::json(['share' => true, 'path_to_download' => "/share_file/$id"]);
+    }
+
+    public function shareFileInfo(Request $req)
+    {
+        $db = DataBase::create();
+        $usersAvaible = $db->quary(
+            "
+            SELECT u.login as user_login,u.id user_id,  CONCAT('/share_file/', s.id) as share_path
+            FROM `share_files` as s
+            LEFT JOIN users as u on u.id = s.reader_user_id
+            WHERE s.file_id = :id
+            ",
+            ['id' => $req->getArg('id')]
+        );
+
+        if (!$usersAvaible['success']) Response::json(['error' => 'Что то пошло не так!'], 500);
+
+        Response::json($usersAvaible['data']);
+    }
+
+
+    public function deleteShareFile(Request $req)
+    {
+        $delete = DataBase::create()->quary(
+            'DELETE FROM `share_files` WHERE `reader_user_id`=:user_id AND `file_id`=:file_id;',
+            ['user_id' => $req->getArg('user_id'), 'file_id' => $req->getArg('id')]
+        );
+
+        if (!$delete['success']) Response::json(['error' => 'Что то пошло не так!'], 500);
+
+        Response::json(['delete' => true]);
+    }
+
+    public function getShareFile(Request $req)
+    {
+        $db = DataBase::create();
+        $avaibleList = $db->quary(
+            "
+            SELECT s.id as id, s.reader_user_id as reader , f.owner_user_id as owner , f.name as file_name, f.id as file_id
+            FROM `share_files` as s
+            LEFT JOIN files as f on f.id = s.file_id
+            HAVING id = :id AND (reader = :user_id OR owner = :user_id)
+            ",
+            ['user_id' => Response::getSession('id'), 'id' => $req->getArg('id')]
+        );
+
+        if (!$avaibleList['success']) Response::json(['error' => 'Что то пошло не так!'], 500);
+
+        if (count($avaibleList['data']) === 0) Response::json(['error' => 'Файла не существует или вы не имеете к нему доступ!'], 403);
+
+        $id = $avaibleList['data'][0]["file_id"];
+        $fileName = $avaibleList['data'][0]["file_name"];
+        FileStorage::sendFile($fileName, $id);
+    }
+
+    public function getSelfFile(Request $req)
+    {
+        $db = DataBase::create();
+        $avaibleList = $db->quary(
+            "SELECT * FROM `files` 
+            WHERE id = :id AND owner_user_id =:user_id",
+            ['user_id' => Response::getSession('id'), 'id' => $req->getArg('id')]
+        );
+
+        if (!$avaibleList['success']) Response::json(['error' => 'Что то пошло не так!'], 500);
+
+        if (count($avaibleList['data']) === 0) Response::json(['error' => 'Файла не существует или вы не имеете к нему доступ!'], 403);
+
+        $id = $avaibleList['data'][0]["id"];
+        $fileName = $avaibleList['data'][0]["name"];
+        FileStorage::sendFile($fileName, $id);
     }
 }

@@ -2,35 +2,49 @@
 
 namespace App\Entities;
 
+use Exception;
+
 class Response
 {
-    public static function json(array $arrayToJson, $code=200)
+    public static function json(array $arrayToJson, $code = 200)
     {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($code);
         echo json_encode($arrayToJson);
-        die();
+        exit();
+    }
+
+    public static function end()
+    {
+        exit();
     }
 
     public static function setSession($sessionValues)
     {
-        session_start();
-        $_SESSION = array_merge( $_SESSION, $sessionValues);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        };
+        $_SESSION = array_merge($_SESSION, $sessionValues);
     }
 
     public static function getSession($key)
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        };
         return $_SESSION[$key];
     }
 
     public static function deleteSession()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        };
         session_destroy();
     }
 
-    public static function html(string $title, $code=200){
+    public static function html(string $title, $code = 200)
+    {
         $path = realpath("./public/html/$title.html");
         if (file_exists($path)) {
             http_response_code($code);
@@ -39,6 +53,28 @@ class Response
             http_response_code(500);
             echo 'Шаблона не найдено!';
         }
-        die();
+        exit();
+    }
+
+    public static function upload(string $path, $name = null)
+    {
+        if (!file_exists($path)) {
+            Logger::printLog("Файла - $path не существует!", 'file');
+            throw new Exception('Файл не существует!');
+        };
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        $fileName = empty($name) ? basename($path) : $name;
+        header('Content-Disposition: attachment; filename=' . $fileName);
+        header('Content-Transfer-Encoding: binary');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($path));
+        readfile($path);
+        exit();
     }
 }

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Entities;
+namespace App\Custom;
 
+use App\Entities\Logger;
 use Exception;
 use PDO;
 use PDOException;

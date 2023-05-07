@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controllers\Middlewares;
+namespace App\Controllers\FilesMiddlewares\Middlewares;
 
-use App\Entities\DataBase;
+use App\Custom\DataBase;
 use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;

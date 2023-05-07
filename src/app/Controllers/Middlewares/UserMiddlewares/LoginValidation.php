@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controllers\Middlewares;
+namespace App\Controllers\UserMiddlewares\Middlewares;
 
-use App\Entities\Crypter;
-use App\Entities\DataBase;
+use App\Custom\Crypter;
+use App\Custom\DataBase;
 use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;

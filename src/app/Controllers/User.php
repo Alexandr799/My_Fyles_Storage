@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-
-use App\Entities\Crypter;
-use App\Entities\DataBase;
+use App\Custom\Crypter;
+use App\Custom\DataBase;
+use App\Custom\Email;
 use App\Entities\Logger;
 use App\Entities\Request;
 use App\Entities\Response;
@@ -29,10 +29,12 @@ class User  extends Controller
     {
         $id = intval($req->getParam('id'));
 
+        $pass = $req->getParam('password');
+
         $params = [
             'role' => $req->getParam('role'),
             'login' => $req->getParam('login'),
-            'password' => $req->getParam('password'),
+            'password' => empty($pass) ? $pass : Crypter::crypt($pass),
         ];
         $cleanParams = [];
         $quary = '';
@@ -89,7 +91,7 @@ class User  extends Controller
             Response::setSession([
                 'id' => $newUserId,
             ]);
-    
+
             Response::json(['create' => true, 'id' => $newUserId, 'logged' => true]);
         } catch (Exception $e) {
             $db->cancelTransaction();
@@ -128,8 +130,29 @@ class User  extends Controller
         Response::json(['exit' => true]);
     }
 
+    function getByEmail(Request $req)
+    {
+        $user =  DataBase::create()->quary('SELECT id, login FROM users WHERE login=:email', ['email' => $req->getArg('email')]);
+        if (!$user['success']) Response::json(['error' => 'Не удалось удалить пользователя'], 500);
+        Response::json($user['data']);
+    }
+
     public function reset_password(Request $req)
     {
-        Response::getSession('id');
+        $newPass = Crypter::encodeID(rand(0, 100000000));
+        $db = DataBase::create();
+        $sended = Email::send(
+            'my_fyles',
+            'a89998627369@yandex.ru',
+            'Запрос на смену пароля',
+            "<h1>Cброс пароля</h1>
+            <p>Ваш новый пароль - <b>$newPass</b></p>
+            <p>Поменять данный пароль вы сможете в личном кабинете после входа!</p>
+            <p>Если вы не делали запрос, проигнорируйте это письмо!</p>"
+        );
+
+        // if (!$sended) Response::json(['error' => 'Сообщение не отравлено!'], 500);
+
+        Response::json(['send' => true, 'message' => 'Сообщение отправлено, если не нашли проверьте спам!']);
     }
 }

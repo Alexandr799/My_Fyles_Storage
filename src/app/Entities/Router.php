@@ -69,10 +69,10 @@ class Router
 
         if (static::matchPath($args, $path)) {
             $_METHOD = [];
-            if ($_SERVER["CONTENT_TYPE"] === 'application/json') {
+            if (isset($_SERVER["CONTENT_TYPE"]) && $_SERVER["CONTENT_TYPE"] === 'application/json') {
                 $body = file_get_contents("php://input");
                 $_METHOD = json_decode($body, true);
-            } elseif (str_starts_with($_SERVER["CONTENT_TYPE"], 'multipart/form-data')) {
+            } elseif (isset($_SERVER["CONTENT_TYPE"]) && str_starts_with($_SERVER["CONTENT_TYPE"], 'multipart/form-data')) {
                 $_METHOD = $_POST;
             } else {
                 parse_str(file_get_contents("php://input"), $_METHOD);
