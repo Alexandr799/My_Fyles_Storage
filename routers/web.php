@@ -1,9 +1,10 @@
 <?php
-
 use App\Controllers\File;
-use App\Controllers\UserMiddlewares\Middlewares\Auth;
-use App\Entities\Router;
+use App\Controllers\Middlewares\UserMiddlewares\Auth;
 use App\Controllers\Pages;
+use App\Entities\Router;
+
+
 
 
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test

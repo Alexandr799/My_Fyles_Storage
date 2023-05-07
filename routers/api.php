@@ -1,21 +1,22 @@
 <?php
-use App\Controllers\DirectoryMiddlewares\Middlewares\DeleteDirectoryValidator;
-use App\Controllers\DirectoryMiddlewares\Middlewares\DirectoryAddValidator;
-use App\Controllers\DirectoryMiddlewares\Middlewares\UpdateDirValidator;
 use App\Controllers\File;
-use App\Controllers\FilesMiddlewares\Middlewares\DeleteFileValidator;
-use App\Controllers\FilesMiddlewares\Middlewares\FileAddValidator;
-use App\Controllers\FilesMiddlewares\Middlewares\UpdateFileValidator;
-use App\Controllers\ShareMiddlewares\Middlewares\ShareInfoValidator;
-use App\Controllers\ShareMiddlewares\Middlewares\ShareValidator;
+use App\Controllers\Middlewares\DirectoryMiddlewares\DeleteDirectoryValidator;
+use App\Controllers\Middlewares\DirectoryMiddlewares\DirectoryAddValidator;
+use App\Controllers\Middlewares\DirectoryMiddlewares\UpdateDirValidator;
+use App\Controllers\Middlewares\FilesMiddlewares\DeleteFileValidator;
+use App\Controllers\Middlewares\FilesMiddlewares\FileAddValidator;
+use App\Controllers\Middlewares\FilesMiddlewares\UpdateFileValidator;
+use App\Controllers\Middlewares\ShareMiddlewares\ShareInfoValidator;
+use App\Controllers\Middlewares\ShareMiddlewares\ShareValidator;
+use App\Controllers\Middlewares\UserMiddlewares\Admin;
+use App\Controllers\Middlewares\UserMiddlewares\Auth;
+use App\Controllers\Middlewares\UserMiddlewares\LoginValidation;
+use App\Controllers\Middlewares\UserMiddlewares\RegisterValidator;
+use App\Controllers\Middlewares\UserMiddlewares\UpdateValidator;
+use App\Controllers\Middlewares\UserMiddlewares\ValidID;
 use App\Controllers\User;
-use App\Controllers\UserMiddlewares\Middlewares\Admin;
-use App\Controllers\UserMiddlewares\Middlewares\Auth;
-use App\Controllers\UserMiddlewares\Middlewares\LoginValidation;
-use App\Controllers\UserMiddlewares\Middlewares\RegisterValidator;
-use App\Controllers\UserMiddlewares\Middlewares\UpdateValidator;
-use App\Controllers\UserMiddlewares\Middlewares\ValidID;
 use App\Entities\Router;
+
 
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test , также при создании api, любой путь важно начить со слов api
 // например /api/test
