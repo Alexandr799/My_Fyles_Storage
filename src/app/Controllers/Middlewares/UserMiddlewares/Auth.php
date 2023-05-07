@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers\UserMiddlewares\Middlewares;
+namespace App\Controllers\Middlewares\UserMiddlewares;
 
 use App\Entities\Request;
 use App\Entities\Response;

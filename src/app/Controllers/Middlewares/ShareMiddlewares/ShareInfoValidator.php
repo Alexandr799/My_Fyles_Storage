@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers\ShareMiddlewares\Middlewares;
+namespace App\Controllers\Middlewares\ShareMiddlewares;
 
 use App\Custom\DataBase;
 use App\Entities\Request;

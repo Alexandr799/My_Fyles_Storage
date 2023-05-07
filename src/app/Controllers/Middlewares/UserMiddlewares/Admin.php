@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers\UserMiddlewares\Middlewares;
+namespace App\Controllers\Middlewares\UserMiddlewares;
 
 use App\Custom\DataBase;
 use App\Entities\Request;
