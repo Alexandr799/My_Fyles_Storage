@@ -1,4 +1,5 @@
 <?php
+
 use App\Controllers\File;
 use App\Controllers\Middlewares\DirectoryMiddlewares\DeleteDirectoryValidator;
 use App\Controllers\Middlewares\DirectoryMiddlewares\DirectoryAddValidator;
@@ -66,25 +67,25 @@ Router::get(
 
 Router::get(
     '/api/admin/user',
-    Admin::create()->next(User::create()),
+    Auth::create()->next(Admin::create()->next(User::create())),
     'list'
 );
 
 Router::get(
     '/api/admin/user/{id}',
-    Admin::create()->next(User::create()),
+    Auth::create()->next(Admin::create()->next(User::create())),
     'index'
 );
 
 Router::delete(
     '/api/admin/user/{id}',
-    Admin::create()->next(User::create()),
+    Auth::create()->next(Admin::create()->next(User::create())),
     'delete'
 );
 
 Router::put(
     '/api/admin/user',
-    Admin::create()->next(UpdateValidator::create()->next(User::create())),
+    Auth::create()->next(Admin::create()->next(UpdateValidator::create()->next(User::create()))),
     'update'
 );
 
@@ -177,5 +178,3 @@ Router::delete(
     Auth::create()->next(File::create()),
     'deleteShareFile'
 );
-
-

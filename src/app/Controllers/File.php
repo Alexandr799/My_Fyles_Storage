@@ -7,15 +7,14 @@ use App\Custom\DataBase;
 use App\Entities\Logger;
 use App\Entities\Request;
 use App\Entities\Response;
+use App\Errors\DataBaseException;
+use App\Errors\FileStorageException;
 use App\Interfaces\Controller;
-use Exception;
-use PDOException;
 
 class File extends Controller
 {
     public function fileAll(Request $req)
     {
-        $userId = Response::getSession('id');
         $files = DataBase::create()->quary(
             "SELECT f.id as file_id, d.pwd as pwd, f.name as file_name, d.id as directory_id, 
             CONCAT('/download/', f.id) as download_link 
@@ -66,9 +65,13 @@ class File extends Controller
                 'created_file' => 'файл успешно создан',
                 'id' => $idFile
             ]);
-        } catch (Exception $e) {
+        } catch (DataBaseException $e) {
             $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Не удалось создать файл!'], 500);
+        } catch (FileStorageException $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'file');
             Response::json(['error' => 'Не удалось создать файл!'], 500);
         }
     }
@@ -85,9 +88,13 @@ class File extends Controller
             FileStorage::deleteFile($req->getProps('fileName'), $req->getArg('id'));
             $db->acceptTransaction();
             Response::json(['delete' => true], 500);
-        } catch (Exception $e) {
+        } catch (DataBaseException $e) {
             $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Не удалось удалить файл!'], 500);
+        } catch (FileStorageException $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'file');
             Response::json(['error' => 'Не удалось удалить файл!'], 500);
         }
     }
@@ -118,9 +125,13 @@ class File extends Controller
             }
             $db->acceptTransaction();
             Response::json(['edit_file' => true]);
-        } catch (Exception $e) {
+        } catch (DataBaseException $e) {
             $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Не удалось обновить файл'], 500);
+        } catch (FileStorageException $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'file');
             Response::json(['error' => 'Не удалось обновить файл'], 500);
         }
     }
@@ -211,9 +222,13 @@ class File extends Controller
             FileStorage::deleteFileAll($files);
             $db->acceptTransaction();
             Response::json(['delete' => 'true']);
-        } catch (Exception $e) {
+        } catch (DataBaseException $e) {
             $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Не удалось удалить файл!'], 500);
+        } catch (FileStorageException $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'file');
             Response::json(['error' => 'Не удалось удалить файл!'], 500);
         }
     }

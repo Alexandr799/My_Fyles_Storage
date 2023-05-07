@@ -8,9 +8,10 @@ use App\Custom\Email;
 use App\Entities\Logger;
 use App\Entities\Request;
 use App\Entities\Response;
+use App\Errors\DataBaseException;
+use App\Errors\EmailException;
 use App\Interfaces\Controller;
 use Exception;
-use PDOException;
 
 class User  extends Controller
 {
@@ -67,6 +68,8 @@ class User  extends Controller
 
         if (Response::getSession('id') == $id) Response::deleteSession();
 
+        
+
         Response::json(['delete' => true]);
     }
 
@@ -94,7 +97,7 @@ class User  extends Controller
             ]);
 
             Response::json(['create' => true, 'id' => $newUserId, 'logged' => true]);
-        } catch (Exception $e) {
+        } catch (DataBaseException $e) {
             $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
             Response::json(['error' => 'Не удалось создать пользователя!'], 500);
@@ -159,7 +162,7 @@ class User  extends Controller
                 'UPDATE users SET password=:pass WHERE id=:id',
                 ['pass' => $hashNewPassword, 'id' => $user['id']]
             );
-            $sended = Email::send(
+            Email::send(
                 'my_fyles',
                 'a89998627369@yandex.ru',
                 'Запрос на смену пароля',
@@ -169,11 +172,15 @@ class User  extends Controller
                 <p>Если вы не делали запрос, проигнорируйте это письмо!</p>"
             );
 
-            if (!$sended) throw new Exception('Сообщение не отправлено!');
             $db->acceptTransaction();
-            Response::json(['send' => true, 'message'=>'Если не увидели письма проверьте спам!']);
-        } catch (Exception $e) {
+            Response::json(['send' => true, 'message' => 'Если не увидели письма проверьте спам!']);
+        } catch (DataBaseException $e) {
+            $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Не удалось сбросить пароль!'], 500);
+        } catch (EmailException $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'email');
             Response::json(['error' => 'Не удалось сбросить пароль!'], 500);
         }
     }

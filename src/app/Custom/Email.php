@@ -3,6 +3,7 @@
 namespace App\Custom;
 
 use App\Entities\Logger;
+use App\Errors\EmailException;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -28,10 +29,8 @@ class Email
             $mail->Subject = $title;
             $mail->Body    = $body;
             $mail->send();
-            return true;
         } catch (Exception $e) {
-            Logger::printLog("Message could not be sent. Mailer Error: {$mail->ErrorInfo}", 'email');
-            return false;
+            throw new EmailException("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
         }
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Custom;
 
 use App\Entities\Logger;
+use App\Errors\DataBaseException;
 use Exception;
 use PDO;
 use PDOException;
@@ -32,7 +33,7 @@ class DataBase
             $host =  $_ENV['HOST'];
             $db =  $_ENV['DB'];
             $this->connection = new PDO("$db:host=$host;dbname=$dbname;charset=$charset", $user, $password);
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
             Logger::printLog($e->getMessage(), 'db');
         };
     }
@@ -61,10 +62,15 @@ class DataBase
     }
 
     public function quaryTransaction(string $quary, array $params=[]){
-        $state = $this->connection->prepare($quary);
-        $state->execute($params);
-        $data = $state->fetchAll(PDO::FETCH_ASSOC);
-        return $data;
+        try {
+            $state = $this->connection->prepare($quary);
+            $state->execute($params);
+            $data = $state->fetchAll(PDO::FETCH_ASSOC);
+            return $data;
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            throw new DataBaseException("Error on quaryTransaction - $quary, message = $message");
+        }
     }
 
     public function startTransaction()

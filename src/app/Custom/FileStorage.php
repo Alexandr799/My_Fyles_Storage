@@ -5,7 +5,7 @@ namespace App\Custom;
 use App\Custom\DataBase;
 use App\Entities\Logger;
 use App\Entities\Response;
-use Exception;
+use App\Errors\FileStorageException;
 
 class FileStorage
 {
@@ -14,19 +14,20 @@ class FileStorage
         $name = realpath('./storage/filestorage') . "/$id" . '_' . $fileName;
         $new = realpath('./storage/filestorage') . "/$id" . '_' . $newname;
         $result = rename($name, $new);
-        if (!$result) throw new Exception("Не удалось переименовать файл!");
+        if (!$result) throw new FileStorageException("Dont rename file -  $fileName , id = $id");
     }
 
     public static function addFile(array $file, int | string $idFile): void
     {
-        $result = move_uploaded_file($file["tmp_name"], realpath('./storage/filestorage') . "/$idFile" . '_' . $file['name']);
-        if (!$result) throw new Exception("Не удалось создать файл!");
+        $fileTitle = $file['name'];
+        $result = move_uploaded_file($file["tmp_name"], realpath('./storage/filestorage') . "/$idFile" . '_' . $fileTitle);
+        if (!$result) throw  new FileStorageException("Dont make file $fileTitle with id -  $idFile");
     }
 
     public static function deleteFile(string $file, int | string $idFile): void
     {
         $result = unlink(realpath('./storage/filestorage') . "/$idFile" . '_' . $file);
-        if (!$result) throw new Exception("Не удалось удалить файл!");
+        if (!$result) throw new FileStorageException("Dont remove file - $file with id $idFile");
     }
 
 
@@ -40,7 +41,7 @@ class FileStorage
     public static function deleteFileByName(string $filename): void
     {
         $result = unlink(realpath('./storage/filestorage') . "/$filename");
-        if (!$result) throw new Exception("Не удалось удалить файл!");
+        if (!$result) throw new FileStorageException("Dont remove file - $filename");
     }
 
     public static function getAllFileRecursive(int | string $id, DataBase $db,  $files = []): array
@@ -64,13 +65,14 @@ class FileStorage
         return  $filesCurrentDir;
     }
 
-    public static function sendFile($filename, $id){
+    public static function sendFile($filename, $id)
+    {
         $true_filename = $id . '_' . $filename;
         $path = realpath("./storage/filestorage") . "/$true_filename";
 
         if (!file_exists($path)) {
             Logger::printLog("Файла - $filename c id - $id не существует!", 'file');
-            Response::json(['error'=>'Что то пошло нет так!'], 500);
+            Response::json(['error' => 'Что то пошло нет так!'], 500);
         };
 
         Response::upload($path, $filename);
