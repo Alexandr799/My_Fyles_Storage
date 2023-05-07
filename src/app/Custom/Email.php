@@ -3,7 +3,6 @@
 namespace App\Custom;
 
 use App\Entities\Logger;
-use App\Entities\Response;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -15,14 +14,14 @@ class Email
         try {
             $mail->SMTPDebug = false;
             $mail->isSMTP();
-            $mail->Host       = 'smtp.mail.ru';
+            $mail->Host       = $_ENV['MAIL_HOST'];
             $mail->SMTPAuth   = true;
-            $mail->Username   = '228.test@internet.ru';
-            $mail->Password   = '5dw2z1cjTMaQXkeHrbyu';
+            $mail->Username   = $_ENV['MAIL_HOST_USERNAME'];
+            $mail->Password   = $_ENV['MAIL_HOST_PASSWORD'];
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port       = 465;
+            $mail->Port       = $_ENV['MAIL_HOST_PORT'];
 
-            $mail->setFrom('228.test@internet.ru', $from);
+            $mail->setFrom($_ENV['MAIL_HOST_USERNAME'], $from);
             $mail->addAddress($to);
 
             $mail->isHTML(true);

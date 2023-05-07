@@ -32,7 +32,7 @@ class Response
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         };
-        return $_SESSION[$key];
+        return empty($_SESSION[$key]) ? null : $_SESSION[$key];
     }
 
     public static function deleteSession()
@@ -50,8 +50,21 @@ class Response
             http_response_code($code);
             echo file_get_contents($path);
         } else {
-            http_response_code(500);
-            echo 'Шаблона не найдено!';
+            throw new Exception("html file $title.html not found");
+        }
+        exit();
+    }
+
+
+    public static function php(string $title, $vars = [], $code = 200)
+    {
+        $path = realpath("./public/php/$title.php");
+        if (file_exists($path)) {
+            http_response_code($code);
+            $_VARS = $vars;
+            require_once($path);
+        } else {
+            throw new Exception("php file $title.php not found");
         }
         exit();
     }

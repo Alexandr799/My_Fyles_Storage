@@ -1,4 +1,6 @@
 *.log
 .env
 /vendor/
-/storage/
+/storage/logs/*
+/storage/filestorage/*
+/sessions/*

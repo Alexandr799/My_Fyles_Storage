@@ -9,6 +9,7 @@ use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;
 use Exception;
+use PDOException;
 
 class File extends Controller
 {

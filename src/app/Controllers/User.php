@@ -10,6 +10,7 @@ use App\Entities\Request;
 use App\Entities\Response;
 use App\Interfaces\Controller;
 use Exception;
+use PDOException;
 
 class User  extends Controller
 {
@@ -139,20 +140,41 @@ class User  extends Controller
 
     public function reset_password(Request $req)
     {
-        $newPass = Crypter::encodeID(rand(0, 100000000));
         $db = DataBase::create();
-        // $sended = Email::send(
-        //     'my_fyles',
-        //     'a89998627369@yandex.ru',
-        //     'Запрос на смену пароля',
-        //     "<h1>Cброс пароля</h1>
-        //     <p>Ваш новый пароль - <b>$newPass</b></p>
-        //     <p>Поменять данный пароль вы сможете в личном кабинете после входа!</p>
-        //     <p>Если вы не делали запрос, проигнорируйте это письмо!</p>"
-        // );
 
-        // if (!$sended) Response::json(['error' => 'Сообщение не отравлено!'], 500);
+        $email = $req->getParam('email');
+        if (empty($email)) Response::json(['error' => 'Не задан email'], 400);
 
-        Response::json(['send' => true, 'message' => 'Сообщение отправлено, если не нашли проверьте спам!']);
+        $user = $db->quary('SELECT id FROM users WHERE login=:email', ['email' => $email]);
+        if (!$user['success']) Response::json(['error' => 'Что то пошло не так!'], 500);
+        if (count($user['data']) === 0) Response::json(['error' => 'Пользователя не существует с таким логином!'], 404);
+
+        $user = $user['data'][0];
+
+        $newPass = Crypter::encodeID(rand(0, 100000000));
+        $hashNewPassword = Crypter::crypt($newPass);
+        $db->startTransaction();
+        try {
+            $db->quaryTransaction(
+                'UPDATE users SET password=:pass WHERE id=:id',
+                ['pass' => $hashNewPassword, 'id' => $user['id']]
+            );
+            $sended = Email::send(
+                'my_fyles',
+                'a89998627369@yandex.ru',
+                'Запрос на смену пароля',
+                "<h1>Cброс пароля</h1>
+                <p>Ваш новый пароль - <b>$newPass</b></p>
+                <p>Поменять данный пароль вы сможете в личном кабинете после входа!</p>
+                <p>Если вы не делали запрос, проигнорируйте это письмо!</p>"
+            );
+
+            if (!$sended) throw new Exception('Сообщение не отправлено!');
+            $db->acceptTransaction();
+            Response::json(['send' => true, 'message'=>'Если не увидели письма проверьте спам!']);
+        } catch (Exception $e) {
+            Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Не удалось сбросить пароль!'], 500);
+        }
     }
 }

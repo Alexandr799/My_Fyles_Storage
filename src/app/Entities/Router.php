@@ -4,6 +4,7 @@ namespace App\Entities;
 
 use App\Controllers\Controller;
 use Exception;
+use Throwable;
 
 class Router
 {
@@ -32,6 +33,7 @@ class Router
         $serverPathArray = explode('/', substr($cleanUrl, 1));
 
         if (count($pathArray) !== count($serverPathArray)) return false;
+
 
         for ($i = 0; count($pathArray) > $i; $i++) {
             if (array_key_exists($i, $args)) continue;

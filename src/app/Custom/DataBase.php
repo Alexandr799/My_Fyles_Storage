@@ -13,8 +13,6 @@ class DataBase
 
     private static $db;
 
-    private bool $transactionMode = false;
-
     public static function create()
     {
         if (!empty(static::$db)) {
@@ -34,7 +32,7 @@ class DataBase
             $host =  $_ENV['HOST'];
             $db =  $_ENV['DB'];
             $this->connection = new PDO("$db:host=$host;dbname=$dbname;charset=$charset", $user, $password);
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             Logger::printLog($e->getMessage(), 'db');
         };
     }
@@ -46,7 +44,6 @@ class DataBase
 
     public function quary(string $quary, array $params=[])
     {
-        if ($this->transactionMode) new Exception('Во время транзации нужно использовать метод quaryTransaction');
         try {
             $state = $this->connection->prepare($quary);
             $state->execute($params);
@@ -64,7 +61,6 @@ class DataBase
     }
 
     public function quaryTransaction(string $quary, array $params=[]){
-        if (!$this->transactionMode) new Exception('Во время транзации нужно использовать метод quary');
         $state = $this->connection->prepare($quary);
         $state->execute($params);
         $data = $state->fetchAll(PDO::FETCH_ASSOC);
@@ -74,19 +70,16 @@ class DataBase
     public function startTransaction()
     {
         $this->connection->beginTransaction();
-        $this->transactionMode = true;
     }
 
 
     public function acceptTransaction()
     {
         $this->connection->commit();
-        $this->transactionMode = false;
     }
 
     public function cancelTransaction()
     {
         $this->connection->rollBack();
-        $this->transactionMode = false;
     }
 }

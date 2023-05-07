@@ -17,7 +17,6 @@ use App\Controllers\Middlewares\UserMiddlewares\ValidID;
 use App\Controllers\User;
 use App\Entities\Router;
 
-
 // пути важно писать в строго формате начиная со слэша /test/path а не path/test , также при создании api, любой путь важно начить со слов api
 // например /api/test
 
@@ -64,7 +63,6 @@ Router::get(
     Auth::create()->next(User::create()),
     'logout'
 );
-
 
 Router::get(
     '/api/admin/user',
