@@ -5,11 +5,13 @@ namespace App\Controllers;
 use App\Custom\Crypter;
 use App\Custom\DataBase;
 use App\Custom\Email;
+use App\Custom\FileStorage;
 use App\Entities\Logger;
 use App\Entities\Request;
 use App\Entities\Response;
 use App\Errors\DataBaseException;
 use App\Errors\EmailException;
+use App\Errors\FileStorageException;
 use App\Interfaces\Controller;
 use Exception;
 
@@ -18,7 +20,13 @@ class User  extends Controller
     public function index(Request $req)
     {
         $id = $req->getArg('id');
-        $users = DataBase::create()->quary("select login, id, role from users where id = :id", ['id' => $id]);
+        $users = DataBase::create()->quary(
+            "select u.login as login, u.id as id, u.role as role , d.id as root_directory_id
+            from users  as u
+            left join directories as d on u.id = d.owner_user_id
+            where d.pwd = '/' AND u.id = :id",
+            ['id' => $id]
+        );
 
         if (!$users['success']) Response::json(['error' => 'Что то пошло не так...'], 500);
 
@@ -29,7 +37,7 @@ class User  extends Controller
 
     public function update(Request $req)
     {
-        $id = intval($req->getParam('id'));
+        $id = intval(Response::getSession('id'));
 
         $pass = $req->getParam('password');
 
@@ -59,18 +67,73 @@ class User  extends Controller
         Response::json(['update' => true]);
     }
 
+    public function updateAdmin(Request $req)
+    {
+        $id = intval($req->getParam('id'));
+
+        $params = [
+            'role' => $req->getParam('role'),
+            'login' => $req->getParam('login'),
+        ];
+        $cleanParams = [];
+        $quary = '';
+        foreach ($params as $key => $val) {
+            if (!empty($val)) {
+                $cleanParams[$key] = $val;
+                $quary .= " $key = :$key,";
+            }
+        }
+        $quary = substr($quary, 0, strlen($quary) - 1);
+        $cleanParams['id'] = $id;
+
+        $dbres = DataBase::create()->quary("UPDATE users SET $quary WHERE id=:id", $cleanParams);
+
+        if (!$dbres['success']) {
+            return  Response::json(['error' => 'Не удалось обновить пользователя'], 500);
+        }
+
+        Response::json(['update' => true]);
+    }
+
     public function delete(Request $req)
     {
         $id = $req->getArg('id');
-        $users = DataBase::create()->quary("DELETE FROM users where id = :id", ['id' => $id]);
+        // $users = DataBase::create()->quary("DELETE FROM users where id = :id", ['id' => $id]);
 
-        if (!$users['success']) Response::json(['error' => 'Не удалось удалить пользователя'], 500);
+        // if (!$users['success']) Response::json(['error' => 'Не удалось удалить пользователя'], 500);
 
-        if (Response::getSession('id') == $id) Response::deleteSession();
-
+        // if (Response::getSession('id') == $id) Response::deleteSession();
+        $db =  DataBase::create();
+        $user = $db->quary(
+            "select u.login as login, u.id as id, u.role as role , d.id as root_directory_id
+            from users  as u
+            left join directories as d on u.id = d.owner_user_id
+            where d.pwd = '/' AND u.id = :id",
+            ['id' => $id]
+        );
+        if (!$user['success']) Response::json(['error' => 'Что то пошло не так!'], 500);
+        if (count($user['data']) === 0) Response::json(['error' => 'Пользователь для удаления не найден!'], 404);
+        
+        $db->startTransaction();
+        try {
+            $files = FileStorage::getAllFileRecursive($user['data'][0]["root_directory_id"], $db);
+            $db->quaryTransaction("DELETE FROM users where id = :id", ['id' => $id]);
+            FileStorage::deleteFileAll($files);
+            if ($id == Response::getSession('id')) Response::deleteSession();
+            $db->acceptTransaction();
+            Response::json(['delete'=>true]);
+        } catch (DataBaseException $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'db');
+            Response::json(['error' => 'Что то пошло не так!'], 500);
+        } catch (FileStorageException $e) {
+            $db->cancelTransaction();
+            Logger::printLog($e->getMessage(), 'file');
+            Response::json(['error' => 'Что то пошло не так!'], 500);
+        }
         
 
-        Response::json(['delete' => true]);
+        Response::json($user);
     }
 
     public function store(Request $req)
@@ -106,7 +169,12 @@ class User  extends Controller
 
     public function list(Request $req)
     {
-        $users = DataBase::create()->quary('select login, id, role  from users;');
+        $users = DataBase::create()->quary(
+            "select u.login as login, u.id as id, u.role as role , d.id as root_directory_id
+            from users  as u
+            left join directories as d on u.id = d.owner_user_id
+            where d.pwd = '/'"
+        );
         if ($users['success']) {
             Response::json($users['data']);
         } else {
@@ -164,7 +232,7 @@ class User  extends Controller
             );
             Email::send(
                 'my_fyles',
-                'a89998627369@yandex.ru',
+                $email,
                 'Запрос на смену пароля',
                 "<h1>Cброс пароля</h1>
                 <p>Ваш новый пароль - <b>$newPass</b></p>

@@ -15,7 +15,7 @@ class RegisterValidator extends Controller
         $password = $req->getParam('password');
         $role = $req->getParam('role');
 
-        if (empty($password) && (strlen($password)<5)) Response::json(['error' => 'Пароль должен быть длинее 5 или более символов'], 400);
+        if (empty($password) || (strlen($password)<5)) Response::json(['error' => 'Пароль должен быть длинее 5 или более символов'], 400);
 
         if (empty($login)) Response::json(['error' => 'Не указан логин'], 400);
 

@@ -17,5 +17,10 @@ set_exception_handler('exception_handler');
 
 require_once(__DIR__ . DIRECTORY_SEPARATOR . '/src/app/Config/ini.php');
 
-require_once(__DIR__ . '/routers/api.php');
-require_once(__DIR__ . '/routers/web.php');
+
+foreach (scandir(__DIR__ . '/routers/') as $file) {
+    $path = __DIR__ . '/routers/' . $file;
+    if (is_file($path)) {
+        require_once($path);
+    }
+}

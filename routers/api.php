@@ -10,6 +10,7 @@ use App\Controllers\Middlewares\FilesMiddlewares\UpdateFileValidator;
 use App\Controllers\Middlewares\ShareMiddlewares\ShareInfoValidator;
 use App\Controllers\Middlewares\ShareMiddlewares\ShareValidator;
 use App\Controllers\Middlewares\UserMiddlewares\Admin;
+use App\Controllers\Middlewares\UserMiddlewares\AdminUpdateValidator;
 use App\Controllers\Middlewares\UserMiddlewares\Auth;
 use App\Controllers\Middlewares\UserMiddlewares\LoginValidation;
 use App\Controllers\Middlewares\UserMiddlewares\RegisterValidator;
@@ -85,8 +86,8 @@ Router::delete(
 
 Router::put(
     '/api/admin/user',
-    Auth::create()->next(Admin::create()->next(UpdateValidator::create()->next(User::create()))),
-    'update'
+    Auth::create()->next(Admin::create()->next(AdminUpdateValidator::create()->next(User::create()))),
+    'updateAdmin'
 );
 
 Router::get(
@@ -105,18 +106,6 @@ Router::post(
     '/api/file',
     Auth::create()->next(FileAddValidator::create()->next(File::create())),
     'addFile'
-);
-
-Router::get(
-    '/api/file/{id}',
-    Auth::create()->next(File::create()),
-    'file'
-);
-
-Router::get(
-    '/api/file',
-    Auth::create()->next(File::create()),
-    'fileAll'
 );
 
 Router::put(

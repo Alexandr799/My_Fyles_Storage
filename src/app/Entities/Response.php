@@ -45,7 +45,7 @@ class Response
 
     public static function html(string $title, $code = 200)
     {
-        $path = realpath("./public/html/$title.html");
+        $path = realpath("./pages/html/$title.html");
         if (file_exists($path)) {
             http_response_code($code);
             echo file_get_contents($path);
@@ -58,7 +58,7 @@ class Response
 
     public static function php(string $title, $vars = [], $code = 200)
     {
-        $path = realpath("./public/php/$title.php");
+        $path = realpath("./pages/php/$title.php");
         if (file_exists($path)) {
             http_response_code($code);
             $_VARS = $vars;
