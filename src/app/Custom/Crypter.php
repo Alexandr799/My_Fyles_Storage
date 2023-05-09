@@ -18,9 +18,4 @@ class Crypter
     {
         return base64_encode($str);
     }
-
-    public static function decodeID(string $str): string
-    {
-        return base64_decode($str);
-    }
 }

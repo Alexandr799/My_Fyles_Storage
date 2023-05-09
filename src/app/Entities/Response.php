@@ -14,8 +14,9 @@ class Response
         exit();
     }
 
-    public static function end()
+    public static function end($code = 200)
     {
+        http_response_code($code);
         exit();
     }
 

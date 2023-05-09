@@ -14,9 +14,4 @@ class Pages extends Controller
     {
         Response::html('index');
     }
-
-    public function test(Request $req)
-    {
-        Response::html('test');
-    }
 }

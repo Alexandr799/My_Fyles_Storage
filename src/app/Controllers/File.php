@@ -87,7 +87,7 @@ class File extends Controller
             );
             FileStorage::deleteFile($req->getProps('fileName'), $req->getArg('id'));
             $db->acceptTransaction();
-            Response::json(['delete' => true], 500);
+            Response::json(['delete' => true], 200);
         } catch (DataBaseException $e) {
             $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
@@ -221,7 +221,7 @@ class File extends Controller
 
             FileStorage::deleteFileAll($files);
             $db->acceptTransaction();
-            Response::json(['delete' => 'true']);
+            Response::json(['delete' => true]);
         } catch (DataBaseException $e) {
             $db->cancelTransaction();
             Logger::printLog($e->getMessage(), 'db');
@@ -256,7 +256,7 @@ class File extends Controller
 
         $id = $share['data'][0]['id'];
 
-        Response::json(['share' => true, 'path_to_download' => "/share_file/$id"]);
+        Response::json(['share' => true, 'link_to_download' => "/share_file/$id", "id_share"=>$id]);
     }
 
     public function shareFileInfo(Request $req)
@@ -264,7 +264,7 @@ class File extends Controller
         $db = DataBase::create();
         $usersAvaible = $db->quary(
             "
-            SELECT u.login as user_login,u.id user_id,  CONCAT('/share_file/', s.id) as share_path
+            SELECT u.login as user_login,u.id as user_id,  CONCAT('/share_file/', s.id) as share_path
             FROM `share_files` as s
             LEFT JOIN users as u on u.id = s.reader_user_id
             WHERE s.file_id = :id
