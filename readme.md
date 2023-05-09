@@ -235,14 +235,14 @@ Email::send(
 Файлы сохраняются в папку /storage/filestorage, сохраняется файл по принципу id_file.txt, id берется из таблицы files, так что все названия будут уникальны, что позволяет не дублировать папки пользователя , а держать их лишь номинально в бд. 
 
 
-| Название метода  | Что делает  | 
+| Название метода  | Что делает  |
 | -------------- | ------------- |
-|```public static function renameFile(string $fileName, int | string $id,  string $newname)``` | Переименовывает файл в папке по названию и id  |
-|```public static function addFile(array $file, int | string $idFile)``` | Добавляет новый файл в /storage/filestorage , принимает массив в котором должен быть путь до файла во временном хранилище ['tmp'] и  название файла ['name'], вторым аргументом принимает уникальный id|
-|```public static function deleteFile(string $fileName, int | string $idFile)``` | Удаляет файл по id и названию |
-|```public static function deleteFileAll(array $filesNames)``` | Удаляет файлы по id и названию, принимает массива типо [['id'=>3, 'name'=>'test.txt'], ['id'=>4, 'name'=>'test2.txt']] |
-|```public static function getAllFileRecursive(int | string $id, DataBase $db,  $files = [])``` | Получает названия  id всех файлов в папке  и подпапках рекурсивно   |
-|```public static function sendFile($filename, $id)``` | Отправляет файл на клиент для скачивания по id и названию   |
+|```renameFile```| Переименовывает файл в папке по названию и id  |
+|``` addFile``` | Добавляет новый файл в /storage/filestorage , принимает массив в котором должен быть путь до файла во временном хранилище ['tmp'] и  название файла ['name'], вторым аргументом принимает уникальный id|
+|```deleteFile``` | Удаляет файл по id и названию |
+|```deleteFileAll``` | Удаляет файлы по id и названию, принимает массива типо [['id'=>3, 'name'=>'test.txt'], ['id'=>4, 'name'=>'test2.txt']] |
+|```getAllFileRecursive``` | Получает названия  id всех файлов в папке  и подпапках рекурсивно   |
+|```sendFile``` | Отправляет файл на клиент для скачивания по id и названию   |
 
 В случае ошибки выкидывает FileStorageException.
 
