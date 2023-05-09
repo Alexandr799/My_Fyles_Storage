@@ -24,10 +24,10 @@ class FileStorage
         if (!$result) throw  new FileStorageException("Dont make file $fileTitle with id -  $idFile");
     }
 
-    public static function deleteFile(string $file, int | string $idFile): void
+    public static function deleteFile(string $fileName, int | string $idFile): void
     {
-        $result = unlink(realpath('./storage/filestorage') . "/$idFile" . '_' . $file);
-        if (!$result) throw new FileStorageException("Dont remove file - $file with id $idFile");
+        $result = unlink(realpath('./storage/filestorage') . "/$idFile" . '_' . $fileName);
+        if (!$result) throw new FileStorageException("Dont remove file - $fileName with id $idFile");
     }
 
 
@@ -36,12 +36,6 @@ class FileStorage
         foreach ($filesNames as $f) {
             static::deleteFile($f['name'], $f['id']);
         }
-    }
-
-    public static function deleteFileByName(string $filename): void
-    {
-        $result = unlink(realpath('./storage/filestorage') . "/$filename");
-        if (!$result) throw new FileStorageException("Dont remove file - $filename");
     }
 
     public static function getAllFileRecursive(int | string $id, DataBase $db,  $files = []): array

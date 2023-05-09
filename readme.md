@@ -238,8 +238,28 @@ Email::send(
 | Название метода  | Что делает  | 
 | -------------- | ------------- |
 |```public static function renameFile(string $fileName, int | string $id,  string $newname)``` | Переименовывает файл в папке по названию и id  |
-|```public static function addFile(array $file, int | string $idFile)``` | Добавляе |
-|```public function  encodeID``` | Кодирует string с base64. |
-
+|```public static function addFile(array $file, int | string $idFile)``` | Добавляет новый файл в /storage/filestorage , принимает массив в котором должен быть путь до файла во временном хранилище ['tmp'] и  название файла ['name'], вторым аргументом принимает уникальный id|
+|```public static function deleteFile(string $fileName, int | string $idFile)``` | Удаляет файл по id и названию |
+|```public static function deleteFileAll(array $filesNames)``` | Удаляет файлы по id и названию, принимает массива типо [['id'=>3, 'name'=>'test.txt'], ['id'=>4, 'name'=>'test2.txt']] |
+|```public static function getAllFileRecursive(int | string $id, DataBase $db,  $files = [])``` | Получает названия  id всех файлов в папке  и подпапках рекурсивно   |
+|```public static function sendFile($filename, $id)``` | Отправляет файл на клиент для скачивания по id и названию   |
 
 В случае ошибки выкидывает FileStorageException.
+
+#### Контроллеры и мидлверы
+В приложении 3 контроллера:
+1. User - отвечает за все ответ по пользователям
+2. File - отвечает на запросы связанные с файловой системой
+3. Pages - отвечает на запросы страниц (одни метод index, в котором отдает главную страницу)
+
+Все мидверы хранятся в папке src/app/Controllers/Middlewares  и разложены по соответсвующим папкам: 
+* src/app/Controllers/Middlewares/DirectoryMiddlewares - Мидверы связанные с запросами по директориям (в основном это валидация )
+* src/app/Controllers/Middlewares/FilesMiddlewares - Мидверы связанные с запросами по файлам (в основном это валидация )
+* src/app/Controllers/Middlewares/ShareMiddlewares - Мидверы связанные с запросами по шерингу файлов (в основном это валидация )
+* src/app/Controllers/Middlewares/UserMiddlewares- Мидверы связанные с запросами по пользователям  (в основном это валидация )
+
+Базу данныз для приложения можно получить из дамп файла - MyFiles.sql
+
+Спасибо за внимание, надеюсь работа с приложением и фреймвороком будет для вас комфортна,
+С уважением, Стриго Александр!
+Телеграм -  [@Alex_Strigo](https://t.me/Alex_Strigo "@Alex_Strigo")
